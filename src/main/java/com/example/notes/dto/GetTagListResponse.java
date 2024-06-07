@@ -3,11 +3,11 @@ package com.example.notes.dto;
 import com.example.notes.model.Tag;
 import lombok.Data;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 public class GetTagListResponse {
 
-    private List<Tag> tagList;
+    private Set<Tag> tagSet;
 
 }

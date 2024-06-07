@@ -20,7 +20,7 @@ public class TagController {
 
     @GetMapping("getTagList")
     public GetTagListResponse getTagList() {
-        return tagService.getTagList();
+        return tagService.getTagSet();
     }
 
 }

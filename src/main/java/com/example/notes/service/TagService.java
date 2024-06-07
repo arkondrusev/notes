@@ -5,21 +5,23 @@ import com.example.notes.dto.GetTagListResponse;
 import com.example.notes.model.Tag;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class TagService {
 
-    private final List<Tag> tagList = new ArrayList<>();
+    private final Set<Tag> tagSet = new HashSet<>();
     private final AtomicInteger idSequence = new AtomicInteger(0);
 
     public CreateTagResponse addTag(String name) {
+        checkTagDuplicate(name);
+
         Tag tag = new Tag();
         tag.setName(name);
         tag.setId(idSequence.incrementAndGet());
-        tagList.add(tag);
+        tagSet.add(tag);
 
         CreateTagResponse response = new CreateTagResponse();
         response.setTagName(tag.getName());
@@ -28,9 +30,17 @@ public class TagService {
         return response;
     }
 
-    public GetTagListResponse getTagList() {
+    // check if tag with name "newTagName" already exists
+    private void checkTagDuplicate(String newTagName) {
+        if (tagSet.stream().filter(n -> n.getName().equals(newTagName))
+                .findFirst().isPresent()) {
+            throw new RuntimeException("Duplicate tag name");
+        }
+    }
+
+    public GetTagListResponse getTagSet() {
         GetTagListResponse response = new GetTagListResponse();
-        response.setTagList(tagList);
+        response.setTagSet(tagSet);
 
         return response;
     }
