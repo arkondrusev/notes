@@ -1,6 +1,7 @@
 package com.example.notes.service;
 
 import com.example.notes.dto.CreateTagResponse;
+import com.example.notes.dto.GetTagListResponse;
 import com.example.notes.model.Tag;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,13 @@ public class TagService {
         CreateTagResponse response = new CreateTagResponse();
         response.setTagName(tag.getName());
         response.setTagId(tag.getId());
+
+        return response;
+    }
+
+    public GetTagListResponse getTagList() {
+        GetTagListResponse response = new GetTagListResponse();
+        response.setTagList(tagList);
 
         return response;
     }
