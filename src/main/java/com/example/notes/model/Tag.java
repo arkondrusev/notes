@@ -8,4 +8,6 @@ public class Tag {
     private Integer id;
     private String name;
 
+    //todo custom "equals" method - compare only by "id"
+
 }
