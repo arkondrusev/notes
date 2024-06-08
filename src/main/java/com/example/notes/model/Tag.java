@@ -10,6 +10,13 @@ public class Tag {
     private Integer id;
     private String name;
 
-    //todo custom "equals" method - compare only by "id"
+    public boolean equals(Object object) {
+        boolean result = false;
+        if (object instanceof Tag) {
+            result = id == ((Tag) object).id;
+        }
+
+        return result;
+    }
 
 }
