@@ -21,7 +21,7 @@ public class TagController {
 
     @GetMapping("getTagList")
     public GetTagListResponse getTagList() {
-        return tagService.getTagSet();
+        return tagService.getTagList();
     }
 
     @PutMapping("updateTag")

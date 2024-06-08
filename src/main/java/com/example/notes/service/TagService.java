@@ -14,15 +14,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TagService {
 
     private final Set<Tag> tagSet = new HashSet<>();
-    private final AtomicInteger idSequence = new AtomicInteger(0);
+    private final AtomicInteger tagIdSequence = new AtomicInteger(0);
 
-    public CreateTagResponse addTag(String name) {
+    public CreateTagResponse addTag(String tagName) {
         //todo check name is not null and not empty
-        checkTagDuplicate(name);
+        checkTagDuplicate(tagName);
 
-        Tag tag = new Tag();
-        tag.setName(name);
-        tag.setId(idSequence.incrementAndGet());
+        Tag tag = new Tag(tagIdSequence.incrementAndGet(),tagName);
         tagSet.add(tag);
 
         CreateTagResponse response = new CreateTagResponse();
@@ -47,7 +45,7 @@ public class TagService {
         return tagSet.stream().filter(n -> n.getName().equals(tagName)).findFirst();
     }
 
-    public GetTagListResponse getTagSet() {
+    public GetTagListResponse getTagList() {
         GetTagListResponse response = new GetTagListResponse();
         response.setTagSet(tagSet);
 
@@ -62,17 +60,17 @@ public class TagService {
         if (storedTag.isPresent()) {
             storedTag.get().setName(updatedTag.getName());
         } else {
-            //todo raise exception tag with such id not found
+            //todo raise exception tag with such tagId not found
         }
     }
 
     public void deleteTag(Integer tagId) {
-        // todo check id is not null
+        // todo check "tagId" is not null
         Optional<Tag> storedTag = findTagById(tagId);
         if (storedTag.isPresent()) {
             tagSet.remove(storedTag.get());
         } else {
-            //todo raise exception tag with such id not found
+            //todo raise exception tag with such tagId not found
         }
     }
 
