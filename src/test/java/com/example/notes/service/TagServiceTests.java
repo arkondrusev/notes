@@ -22,8 +22,8 @@ public class TagServiceTests {
     @Autowired
     private TagService tagService;
 
-    private String expectedTagName1 = "TestTag1";
-    private String expectedTagName2 = "TestTag2";
+    private final String expectedTagName1 = "TestTag1";
+    private final String expectedTagName2 = "TestTag2";
 
     @Test
     @Order(1)
