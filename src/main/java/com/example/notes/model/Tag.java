@@ -13,7 +13,7 @@ public class Tag {
     public boolean equals(Object object) {
         boolean result = false;
         if (object instanceof Tag) {
-            result = id == ((Tag) object).id;
+            result = id.equals(((Tag) object).id);
         }
 
         return result;
