@@ -52,9 +52,9 @@ public class TagServiceTests {
     @Order(3)
     void getTagList_success() {
         GetTagListResponse expectedResponse = new GetTagListResponse();
-        expectedResponse.setTagSet(new HashSet<>());
-        expectedResponse.getTagSet().add(new Tag(1, expectedTagName1));
-        expectedResponse.getTagSet().add(new Tag(2, expectedTagName2));
+        expectedResponse.setTagList(new HashSet<>());
+        expectedResponse.getTagList().add(new Tag(1, expectedTagName1));
+        expectedResponse.getTagList().add(new Tag(2, expectedTagName2));
 
         GetTagListResponse actualResponse = tagService.getTagList();
         Assertions.assertNotNull(actualResponse);
@@ -68,7 +68,7 @@ public class TagServiceTests {
         Tag expectedTag = new Tag(2, expectedTagName);
         tagService.updateTag(expectedTag);
 
-        Optional<Tag> actualTag = tagService.getTagList().getTagSet().stream()
+        Optional<Tag> actualTag = tagService.getTagList().getTagList().stream()
                 .filter(n -> n.getId().equals(expectedTag.getId())).findFirst();
 
         Assertions.assertNotNull(actualTag);

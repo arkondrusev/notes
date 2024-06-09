@@ -8,6 +8,6 @@ import java.util.Set;
 @Data
 public class GetTagListResponse {
 
-    private Set<Tag> tagSet;
+    private Set<Tag> tagList;
 
 }

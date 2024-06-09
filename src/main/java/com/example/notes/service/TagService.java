@@ -49,7 +49,7 @@ public class TagService {
 
     public GetTagListResponse getTagList() {
         GetTagListResponse response = new GetTagListResponse();
-        response.setTagSet(tagSet);
+        response.setTagList(tagSet);
 
         return response;
     }
