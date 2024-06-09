@@ -68,8 +68,16 @@ public class TopicService {
     }
 
     public void deleteTopic(Integer topicId) {
-        //todo check "topicId" exists
-        //todo implement method
+        //todo check "topicId" not empty
+        Optional<Topic> topicOpt = findTopicById(topicId);
+        if (topicOpt.isPresent()) {
+            Topic topic = topicOpt.get();
+            topic.getParentTopic().getChildren().remove(topic);
+            topic.getChildren().stream().forEach(n -> n.setParentTopic(null));
+            topicList.remove(topic);
+        } else {
+            //todo throw exception topic with such id not found
+        }
     }
 
 }
