@@ -1,15 +1,23 @@
 package com.example.notes.dto.topic;
 
-import com.example.notes.model.Topic;
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NonNull;
 
 @Data
-@AllArgsConstructor
 public class CreateTopicResponse {
 
-    private Integer id;
-    private String Name;
-    private Topic parentTopic;
+    private Integer topicId;
+    private String topicName;
+    private Integer parentTopicId;
+
+    public CreateTopicResponse(@NonNull Integer topicId, @NonNull String topicName, Integer parentTopicId) {
+        this.topicId = topicId;
+        this.topicName = topicName;
+        this.parentTopicId = parentTopicId;
+    }
+
+    public CreateTopicResponse(@NonNull Integer topicId, @NonNull String topicName) {
+        this(topicId, topicName, null);
+    }
 
 }

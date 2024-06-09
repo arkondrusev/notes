@@ -22,7 +22,7 @@ public class TopicService {
 
     public CreateTopicResponse addTopic(CreateTopicRequest request) {
         //todo check "request" params are filled
-        checkTopicNameDuplicate(request.getName());
+        checkTopicNameDuplicate(request.getTopicName());
 
         Topic parentTopic = null;
         if (request.getParentTopicId() != null) {
@@ -34,15 +34,14 @@ public class TopicService {
             }
         }
 
-        Topic newTopic = new Topic(topicIdSequence.incrementAndGet(), request.getName(), parentTopic);
+        Topic newTopic = new Topic(topicIdSequence.incrementAndGet(), request.getTopicName(), parentTopic);
         if (parentTopic != null) {
             parentTopic.getChildren().add(newTopic);
         }
         topicList.add(newTopic);
 
-        CreateTopicResponse response = new CreateTopicResponse(newTopic.getId(), newTopic.getName(), newTopic.getParentTopic());
-
-        return response;
+        return new CreateTopicResponse(newTopic.getId(), newTopic.getName(),
+                newTopic.getParentTopic() == null ? null : newTopic.getParentTopic().getId());
     }
 
     private Optional<Topic> findTopicById(Integer topicId) {

@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class CreateTopicRequest {
 
-    private final String name;
+    private final String topicName;
     private final Integer parentTopicId;
 
 }
