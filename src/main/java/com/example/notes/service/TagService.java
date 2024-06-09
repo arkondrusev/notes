@@ -1,7 +1,7 @@
 package com.example.notes.service;
 
-import com.example.notes.dto.CreateTagResponse;
-import com.example.notes.dto.GetTagListResponse;
+import com.example.notes.dto.tag.CreateTagResponse;
+import com.example.notes.dto.tag.GetTagListResponse;
 import com.example.notes.model.Tag;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class TagService {
+
+    public static final String DUPLICATE_TAG_NAME_MESSAGE = "Duplicate tag name: %s";
 
     private final Set<Tag> tagSet = new HashSet<>();
     private final AtomicInteger tagIdSequence = new AtomicInteger(0);
@@ -33,7 +35,7 @@ public class TagService {
     // check if tag with name "newTagName" already exists
     private void checkTagDuplicate(String newTagName) {
         if (findTagByName(newTagName).isPresent()) {
-            throw new RuntimeException("Duplicate tag name");
+            throw new RuntimeException(String.format(DUPLICATE_TAG_NAME_MESSAGE, newTagName));
         }
     }
 

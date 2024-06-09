@@ -1,7 +1,7 @@
 package com.example.notes.controller;
 
-import com.example.notes.dto.CreateTagResponse;
-import com.example.notes.dto.GetTagListResponse;
+import com.example.notes.dto.tag.CreateTagResponse;
+import com.example.notes.dto.tag.GetTagListResponse;
 import com.example.notes.model.Tag;
 import com.example.notes.service.TagService;
 import lombok.RequiredArgsConstructor;

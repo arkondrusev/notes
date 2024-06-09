@@ -1,7 +1,7 @@
 package com.example.notes.service;
 
-import com.example.notes.dto.CreateTagResponse;
-import com.example.notes.dto.GetTagListResponse;
+import com.example.notes.dto.tag.CreateTagResponse;
+import com.example.notes.dto.tag.GetTagListResponse;
 import com.example.notes.model.Tag;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +39,7 @@ public class TagServiceTests {
     @Test
     @Order(2)
     void addTag_fail_duplicateTagException() {
-        String expectedExceptionMessage = "Duplicate tag name";
+        String expectedExceptionMessage = String.format(tagService.DUPLICATE_TAG_NAME_MESSAGE, expectedTagName2);
         Throwable actualException = Assertions.assertThrows(RuntimeException.class,
                 () -> tagService.addTag(expectedTagName2));
 
