@@ -1,6 +1,5 @@
 package com.example.notes.dto.topic;
 
-import com.example.notes.model.Topic;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -10,6 +9,6 @@ import java.util.Set;
 @AllArgsConstructor
 public class GetTopicTreeResponse {
 
-    private Set<Topic> rootTopicList;
+    private Set<TopicWrapper> rootTopicList;
 
 }

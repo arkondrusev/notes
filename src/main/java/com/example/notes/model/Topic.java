@@ -3,12 +3,14 @@ package com.example.notes.model;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(exclude = {"parentTopic"})
 public class Topic {
 
     @EqualsAndHashCode.Include
@@ -18,13 +20,13 @@ public class Topic {
     private String name;
     private Topic parentTopic;
     @NonNull
-    private Set<Topic> children;
+    private Set<Topic> childrenTopicList;
 
-    public Topic(@NonNull Integer topicId, @NonNull String topicName, Topic parentTopic, @NonNull Set<Topic> children) {
+    public Topic(@NonNull Integer topicId, @NonNull String topicName, Topic parentTopic, @NonNull Set<Topic> childrenTopicList) {
         this.id = topicId;
         this.name = topicName;
         this.parentTopic = parentTopic;
-        this.children = children;
+        this.childrenTopicList = childrenTopicList;
     }
 
     public Topic(@NonNull Integer topicId, @NonNull String topicName, Topic parentTopic) {

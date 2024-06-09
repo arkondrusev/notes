@@ -3,6 +3,7 @@ package com.example.notes.service;
 import com.example.notes.dto.topic.CreateTopicRequest;
 import com.example.notes.dto.topic.CreateTopicResponse;
 import com.example.notes.dto.topic.GetTopicTreeResponse;
+import com.example.notes.dto.topic.TopicWrapper;
 import com.example.notes.model.Topic;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +11,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 @Service
 public class TopicService {
@@ -36,7 +36,7 @@ public class TopicService {
 
         Topic newTopic = new Topic(topicIdSequence.incrementAndGet(), request.getTopicName(), parentTopic);
         if (parentTopic != null) {
-            parentTopic.getChildren().add(newTopic);
+            parentTopic.getChildrenTopicList().add(newTopic);
         }
         topicList.add(newTopic);
 
@@ -62,8 +62,22 @@ public class TopicService {
     }
 
     public GetTopicTreeResponse getTopicTree() {
-        return new GetTopicTreeResponse(topicList.stream()
-                .filter(n -> n.getParentTopic() == null).collect(Collectors.toSet()));
+        Set<TopicWrapper> rootList = new HashSet<>();
+
+        topicList.stream()
+                .filter(topic -> topic.getParentTopic() == null)
+                .forEach(topic-> rootList.add(fillTopicWrapper(topic)));
+
+        return new GetTopicTreeResponse(rootList);
+    }
+
+    private TopicWrapper fillTopicWrapper(Topic topic) {
+        TopicWrapper topicWrapper = new TopicWrapper(topic.getId(), topic.getName()
+                , topic.getParentTopic() == null ? null : topic.getParentTopic().getId());
+        for (Topic child : topic.getChildrenTopicList()) {
+            topicWrapper.getChildrenTopicList().add(fillTopicWrapper(child));
+        }
+        return topicWrapper;
     }
 
     public void deleteTopic(Integer topicId) {
@@ -71,8 +85,8 @@ public class TopicService {
         Optional<Topic> topicOpt = findTopicById(topicId);
         if (topicOpt.isPresent()) {
             Topic topic = topicOpt.get();
-            topic.getParentTopic().getChildren().remove(topic);
-            topic.getChildren().stream().forEach(n -> n.setParentTopic(null));
+            topic.getParentTopic().getChildrenTopicList().remove(topic);
+            topic.getChildrenTopicList().forEach(n -> n.setParentTopic(null));
             topicList.remove(topic);
         } else {
             //todo throw exception topic with such id not found
