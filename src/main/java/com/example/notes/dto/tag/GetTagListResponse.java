@@ -1,4 +1,4 @@
-package com.example.notes.dto;
+package com.example.notes.dto.tag;
 
 import com.example.notes.model.Tag;
 import lombok.Data;
