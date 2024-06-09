@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 public class TopicService {
 
+    public static final String DUPLICATE_TOPIC_NAME_MESSAGE = "Duplicate topic name: %s";
+
     private final Set<Topic> topicSet = new HashSet<>();
     private final AtomicInteger topicIdSequence = new AtomicInteger(0);
 
@@ -55,7 +57,7 @@ public class TopicService {
 
     private void checkTopicNameDuplicate(String topicName) {
         if (findTopicByName(topicName).isPresent()) {
-            throw new RuntimeException("Duplicate topic name: " + topicName);
+            throw new RuntimeException(String.format(DUPLICATE_TOPIC_NAME_MESSAGE, topicName));
         }
     }
 
