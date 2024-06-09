@@ -10,13 +10,14 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 public class TopicService {
 
     public static final String DUPLICATE_TOPIC_NAME_MESSAGE = "Duplicate topic name: %s";
 
-    private final Set<Topic> topicSet = new HashSet<>();
+    private final Set<Topic> topicList = new HashSet<>();
     private final AtomicInteger topicIdSequence = new AtomicInteger(0);
 
     public CreateTopicResponse addTopic(CreateTopicRequest request) {
@@ -37,7 +38,7 @@ public class TopicService {
         if (parentTopic != null) {
             parentTopic.getChildren().add(newTopic);
         }
-        topicSet.add(newTopic);
+        topicList.add(newTopic);
 
         CreateTopicResponse response = new CreateTopicResponse(newTopic.getId(), newTopic.getName(), newTopic.getParentTopic());
 
@@ -45,13 +46,13 @@ public class TopicService {
     }
 
     private Optional<Topic> findTopicById(Integer topicId) {
-        return topicSet.stream()
+        return topicList.stream()
                 .filter(topic -> topic.getId().equals(topicId))
                 .findFirst();
     }
 
     private Optional<Topic> findTopicByName(String topicName) {
-        return topicSet.stream()
+        return topicList.stream()
                 .filter(topic -> topic.getName().equals(topicName)).findFirst();
     }
 
@@ -62,9 +63,8 @@ public class TopicService {
     }
 
     public GetTopicTreeResponse getTopicTree() {
-        GetTopicTreeResponse response = new GetTopicTreeResponse();
-        //todo implement method
-        return response;
+        return new GetTopicTreeResponse(topicList.stream()
+                .filter(n -> n.getParentTopic() == null).collect(Collectors.toSet()));
     }
 
     public void deleteTopic(Integer topicId) {
