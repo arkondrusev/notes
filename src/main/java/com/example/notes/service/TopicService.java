@@ -23,15 +23,18 @@ public class TopicService {
 
         Topic parentTopic = null;
         if (request.getParentTopicId() != null) {
-            Optional<Topic> foundTopic = findTopicById(request.getParentTopicId());
-            if (foundTopic.isPresent()) {
-                parentTopic = foundTopic.get();
+            Optional<Topic> parentTopicOpt = findTopicById(request.getParentTopicId());
+            if (parentTopicOpt.isPresent()) {
+                parentTopic = parentTopicOpt.get();
             } else {
                 // todo raise Exception "parent topic with such id not found"
             }
         }
 
         Topic newTopic = new Topic(topicIdSequence.incrementAndGet(), request.getName(), parentTopic);
+        if (parentTopic != null) {
+            parentTopic.getChildren().add(newTopic);
+        }
         topicSet.add(newTopic);
 
         CreateTopicResponse response = new CreateTopicResponse(newTopic.getId(), newTopic.getName(), newTopic.getParentTopic());
