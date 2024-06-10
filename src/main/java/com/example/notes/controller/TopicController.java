@@ -19,7 +19,7 @@ public class TopicController {
         return topicService.addTopic(request);
     }
 
-    //todo implement posibility to get subtree using "topicId" as parameter
+    //todo implement possibility to get subtree using "topicId" as parameter
     @GetMapping("getTopicTree")
     public GetTopicTreeResponse getTopicTree() {
         return topicService.getTopicTree();
