@@ -44,7 +44,7 @@ public class TopicService {
                 newTopic.getParentTopic() == null ? null : newTopic.getParentTopic().getId());
     }
 
-    private Optional<Topic> findTopicById(Integer topicId) {
+    public Optional<Topic> findTopicById(Integer topicId) {
         return topicList.stream()
                 .filter(topic -> topic.getId().equals(topicId))
                 .findFirst();

@@ -2,12 +2,13 @@ package com.example.notes.model;
 
 import lombok.*;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
-@RequiredArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString(exclude = {"parentTopic"})
+@ToString(exclude = {"topic"})
 public class Note {
 
     @EqualsAndHashCode.Include
@@ -18,6 +19,21 @@ public class Note {
     @NonNull
     private Topic topic;
     private String content;
-    private List<Tag> tagList;
+    private Set<Tag> tagList;
+
+    public Note(Integer id, String name, Topic parentTopic, String content) {
+        this(id, name, parentTopic, content, new HashSet<>());
+    }
+
+    public Note(Integer id, String name, Topic parentTopic) {
+        this(id, name, parentTopic, "");
+    }
+
+    public Set<Tag> getTagList() {
+        if (tagList == null) {
+            tagList = new HashSet<>();
+        }
+        return tagList;
+    }
 
 }

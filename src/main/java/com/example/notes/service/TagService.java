@@ -39,7 +39,7 @@ public class TagService {
         }
     }
 
-    private Optional<Tag> findTagById(Integer id) {
+    public Optional<Tag> findTagById(Integer id) {
         return tagSet.stream().filter(n -> n.getId().equals(id)).findFirst();
     }
 
