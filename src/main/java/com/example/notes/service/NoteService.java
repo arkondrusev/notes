@@ -1,6 +1,7 @@
 package com.example.notes.service;
 
 import com.example.notes.dto.note.*;
+import com.example.notes.dto.tag.TagWrapper;
 import com.example.notes.model.Note;
 import com.example.notes.model.Tag;
 import com.example.notes.model.Topic;
@@ -54,7 +55,21 @@ public class NoteService {
     }
 
     public GetNoteListResponse getNoteList() {
-        return new GetNoteListResponse();
+        GetNoteListResponse response = new GetNoteListResponse();
+        noteList.forEach(note -> {
+            Integer topicId = null;
+            String topicName = null;
+            if (note.getTopic() != null) {
+                topicId = note.getTopic().getId();
+                topicName = note.getTopic().getName();
+            }
+            Set<TagWrapper> tagWrapperList = new HashSet<>();
+            note.getTagList().forEach(tag -> {
+                tagWrapperList.add(new TagWrapper(tag.getId(), tag.getName()));
+            });
+            response.getNoteList().add(new NoteWrapper(note.getId(), note.getName(), topicId, topicName, note.getContent(), tagWrapperList));
+        });
+        return response;
     }
 
 }
