@@ -1,11 +1,18 @@
 package com.example.notes.dto.tag;
 
+import com.example.notes.dto.OperationResponse;
 import lombok.Data;
 
 @Data
-public class CreateTagResponse {
+public class CreateTagResponse extends OperationResponse {
 
     private Integer tagId;
     private String tagName;
+
+    public CreateTagResponse(Integer tagId, String tagName) {
+        super(RESULT_CODE__OK, RESULT_MESSAGE__OK);
+        this.tagId = tagId;
+        this.tagName = tagName;
+    }
 
 }

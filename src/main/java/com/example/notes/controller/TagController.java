@@ -1,8 +1,7 @@
 package com.example.notes.controller;
 
-import com.example.notes.dto.tag.CreateTagResponse;
-import com.example.notes.dto.tag.GetTagListResponse;
-import com.example.notes.model.Tag;
+import com.example.notes.dto.OperationResponse;
+import com.example.notes.dto.tag.*;
 import com.example.notes.service.TagService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +14,8 @@ public class TagController {
     private final TagService tagService;
 
     @PostMapping("createTag")
-    public CreateTagResponse createTag(@RequestBody String name) {
-        return tagService.addTag(name);
+    public CreateTagResponse createTag(@RequestBody CreateTagRequest request) {
+        return tagService.createTag(request);
     }
 
     @GetMapping("getTagList")
@@ -25,13 +24,13 @@ public class TagController {
     }
 
     @PutMapping("updateTag")
-    public void updateTag(@RequestBody Tag updatedTag) {
-        tagService.updateTag(updatedTag);
+    public OperationResponse updateTag(@RequestBody UpdateTagRequest request) {
+        return tagService.updateTag(request);
     }
 
     @DeleteMapping("deleteTag")
-    public void deleteTag(@RequestBody Integer id) {
-        tagService.deleteTag(id);
+    public OperationResponse deleteTag(@RequestBody DeleteTagRequest request) {
+        return tagService.deleteTag(request);
     }
 
 }

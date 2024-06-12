@@ -1,7 +1,7 @@
 package com.example.notes.service;
 
-import com.example.notes.dto.tag.CreateTagResponse;
-import com.example.notes.dto.tag.GetTagListResponse;
+import com.example.notes.dto.OperationResponse;
+import com.example.notes.dto.tag.*;
 import com.example.notes.model.Tag;
 import org.springframework.stereotype.Service;
 
@@ -18,18 +18,14 @@ public class TagService {
     private final Set<Tag> tagSet = new HashSet<>();
     private final AtomicInteger tagIdSequence = new AtomicInteger(0);
 
-    public CreateTagResponse addTag(String tagName) {
+    public CreateTagResponse createTag(CreateTagRequest request) {
         //todo check name is not null and not empty
-        checkTagDuplicate(tagName);
+        checkTagDuplicate(request.getTagName());
 
-        Tag tag = new Tag(tagIdSequence.incrementAndGet(),tagName);
+        Tag tag = new Tag(tagIdSequence.incrementAndGet(),request.getTagName());
         tagSet.add(tag);
 
-        CreateTagResponse response = new CreateTagResponse();
-        response.setTagName(tag.getName());
-        response.setTagId(tag.getId());
-
-        return response;
+        return new CreateTagResponse(tag.getId(),tag.getName());
     }
 
     // check if tag with name "newTagName" already exists
@@ -48,32 +44,33 @@ public class TagService {
     }
 
     public GetTagListResponse getTagList() {
-        GetTagListResponse response = new GetTagListResponse();
-        response.setTagList(tagSet);
-
-        return response;
+        return new GetTagListResponse(tagSet);
     }
 
-    public void updateTag(Tag updatedTag) {
+    public OperationResponse updateTag(UpdateTagRequest request) {
         //todo check updatedTag id and name filled
-        checkTagDuplicate(updatedTag.getName());
+        checkTagDuplicate(request.getTagName());
 
-        Optional<Tag> storedTag = findTagById(updatedTag.getId());
+        Optional<Tag> storedTag = findTagById(request.getTagId());
         if (storedTag.isPresent()) {
-            storedTag.get().setName(updatedTag.getName());
+            storedTag.get().setName(request.getTagName())
         } else {
             //todo raise exception tag with such tagId not found
         }
+
+        return OperationResponse.ok();
     }
 
-    public void deleteTag(Integer tagId) {
+    public OperationResponse deleteTag(DeleteTagRequest request) {
         // todo check "tagId" is not null
-        Optional<Tag> storedTag = findTagById(tagId);
+        Optional<Tag> storedTag = findTagById(request.getTagId());
         if (storedTag.isPresent()) {
             tagSet.remove(storedTag.get());
         } else {
             //todo raise exception tag with such tagId not found
         }
+
+        return OperationResponse.ok();
     }
 
 }
