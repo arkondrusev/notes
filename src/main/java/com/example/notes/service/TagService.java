@@ -3,6 +3,8 @@ package com.example.notes.service;
 import com.example.notes.dto.OperationResponse;
 import com.example.notes.dto.tag.*;
 import com.example.notes.model.Tag;
+import com.example.notes.repository.TagRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -11,21 +13,22 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
+@RequiredArgsConstructor
 public class TagService {
 
     public static final String DUPLICATE_TAG_NAME_MESSAGE = "Duplicate tag name: %s";
 
+    private final TagRepository tagRepository;
+
     private final Set<Tag> tagSet = new HashSet<>();
-    private final AtomicInteger tagIdSequence = new AtomicInteger(0);
 
     public CreateTagResponse createTag(CreateTagRequest request) {
         //todo check name is not null and not empty
         checkTagDuplicate(request.getTagName());
 
-        Tag tag = new Tag(tagIdSequence.incrementAndGet(),request.getTagName());
-        tagSet.add(tag);
+        Tag tag = tagRepository.addTag(request.getTagName());
 
-        return new CreateTagResponse(tag.getId(),tag.getName());
+        return new CreateTagResponse(tag.getId(), tag.getName());
     }
 
     // check if tag with name "newTagName" already exists
