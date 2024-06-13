@@ -2,9 +2,11 @@ package com.example.notes.dto.topic;
 
 import com.example.notes.dto.OperationResponse;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
 @Data
+@EqualsAndHashCode(callSuper=true)
 public class CreateTopicResponse extends OperationResponse {
 
     private Integer topicId;

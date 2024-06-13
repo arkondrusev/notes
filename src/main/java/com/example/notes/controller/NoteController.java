@@ -1,5 +1,6 @@
 package com.example.notes.controller;
 
+import com.example.notes.dto.OperationResponse;
 import com.example.notes.dto.note.*;
 import com.example.notes.service.NoteService;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +24,12 @@ public class NoteController {
     }
 
     @PutMapping("updateNote")
-    public UpdateNoteResponse updateNote(@RequestBody UpdateNoteRequest request) {
+    public OperationResponse updateNote(@RequestBody UpdateNoteRequest request) {
         return noteService.updateNote(request);
     }
 
     @DeleteMapping("deleteNote")
-    public DeleteNoteResponse deleteNote(@RequestBody DeleteNoteRequest request) {
+    public OperationResponse deleteNote(@RequestBody DeleteNoteRequest request) {
         return noteService.deleteNote(request);
     }
 

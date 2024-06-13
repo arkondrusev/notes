@@ -1,5 +1,6 @@
 package com.example.notes.service;
 
+import com.example.notes.dto.OperationResponse;
 import com.example.notes.dto.note.*;
 import com.example.notes.dto.tag.TagWrapper;
 import com.example.notes.model.Note;
@@ -31,31 +32,59 @@ public class NoteService {
         if (topicOpt.isEmpty()) {
             throw new RuntimeException(String.format("Topic with id={0} not found",request.getTopicId()));
         }
+        Note newNote = new Note(noteIdSequence.incrementAndGet(), request.getNoteName(),
+                topicOpt.get(), request.getNoteContent(), findTagsByTagWrappers(request.getNoteTagList()));
+        noteList.add(newNote);
+
+        return new CreateNoteResponse(newNote.getId(), newNote.getName());
+    }
+
+    private Note findNoteById(int id) {
+        return noteList.stream().filter(note -> note.getId() == id).findFirst().orElse(null);
+    }
+
+    private Set<Tag> findTagsByTagWrappers(Set<TagWrapper> tagWrapperList) {
         Set<Tag> tagList = new HashSet<>();
-        request.getNoteTagList().forEach(tw->{
+        tagWrapperList.forEach(tw->{
             Optional<Tag> tag = tagService.findTagById(tw.getTagId());
             if (tag.isEmpty()) {
                 throw new RuntimeException(String.format("Tag with id={0} not found",tw.getTagId()));
             }
             tagList.add(tag.get());
         });
-        Note newNote = new Note(noteIdSequence.incrementAndGet(), request.getNoteName(),
-                topicOpt.get(), request.getNoteContent(), tagList);
-        noteList.add(newNote);
 
-        return new CreateNoteResponse(newNote.getId(), newNote.getName());
+        return tagList;
     }
 
-    public UpdateNoteResponse updateNote(UpdateNoteRequest request) {
-        return new UpdateNoteResponse();
+    public OperationResponse updateNote(UpdateNoteRequest request) {
+        //todo check request params
+        Note foundNote = findNoteById(request.getNoteId());
+        if (foundNote == null) {
+            throw new RuntimeException(String.format("Note with id={0} not found",request.getNoteId()));
+        }
+
+
+        if (request.getTopicId() != null) {
+            Optional<Topic> topicOpt = topicService.findTopicById(request.getTopicId());
+            if (topicOpt.isEmpty()) {
+                throw new RuntimeException(String.format("Topic with id={0} not found",request.getTopicId()));
+            } else {
+                foundNote.setTopic(topicOpt.get());
+            }
+        }
+        foundNote.setTagList(findTagsByTagWrappers(request.getNoteTagList()));
+        foundNote.setContent(request.getNoteContent());
+        foundNote.setName(request.getNoteName());
+
+        return OperationResponse.ok();
     }
 
-    public DeleteNoteResponse deleteNote(DeleteNoteRequest request) {
-        return new DeleteNoteResponse();
+    public OperationResponse deleteNote(DeleteNoteRequest request) {
+        return OperationResponse.ok();
     }
 
     public GetNoteListResponse getNoteList() {
-        GetNoteListResponse response = new GetNoteListResponse();
+        Set<NoteWrapper> noteWrapperList = new HashSet<>();
         noteList.forEach(note -> {
             Integer topicId = null;
             String topicName = null;
@@ -67,9 +96,9 @@ public class NoteService {
             note.getTagList().forEach(tag -> {
                 tagWrapperList.add(new TagWrapper(tag.getId(), tag.getName()));
             });
-            response.getNoteList().add(new NoteWrapper(note.getId(), note.getName(), topicId, topicName, note.getContent(), tagWrapperList));
+            noteWrapperList.add(new NoteWrapper(note.getId(), note.getName(), topicId, topicName, note.getContent(), tagWrapperList));
         });
-        return response;
+        return new GetNoteListResponse(noteWrapperList);
     }
 
 }
