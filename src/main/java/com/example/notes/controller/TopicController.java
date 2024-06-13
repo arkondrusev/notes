@@ -1,10 +1,7 @@
 package com.example.notes.controller;
 
 import com.example.notes.dto.OperationResponse;
-import com.example.notes.dto.topic.CreateTopicRequest;
-import com.example.notes.dto.topic.CreateTopicResponse;
-import com.example.notes.dto.topic.DeleteTopicRequest;
-import com.example.notes.dto.topic.GetTopicTreeResponse;
+import com.example.notes.dto.topic.*;
 import com.example.notes.service.TopicService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +22,11 @@ public class TopicController {
     @GetMapping("getTopicTree")
     public GetTopicTreeResponse getTopicTree() {
         return topicService.getTopicTree();
+    }
+
+    @PutMapping("updateTopic")
+    public OperationResponse updateTopic(@RequestBody UpdateTopicRequest request) {
+        return topicService.updateTopic(request);
     }
 
     @DeleteMapping("deleteTopic")

@@ -70,6 +70,30 @@ public class TopicService {
         return topicWrapper;
     }
 
+    public OperationResponse updateTopic(UpdateTopicRequest request) {
+        // todo check request params
+
+        Optional<Topic> topicOpt = findTopicById(request.getTopicId());
+        if (topicOpt.isEmpty()) {
+            throw new RuntimeException("Topic not found: id=" + request.getTopicId());
+        }
+
+        Topic topic = topicOpt.get();
+        if (request.getParentTopicId() != null) {
+            Optional<Topic> parentTopicOpt = findTopicById(request.getParentTopicId());
+            if (parentTopicOpt.isEmpty()) {
+                throw new RuntimeException("Parent topic not found: id=" + request.getParentTopicId());
+            }
+            topic.getParentTopic().getChildrenTopicList().remove(topic);
+            Topic newParentTopic = parentTopicOpt.get();
+            topic.setParentTopic(newParentTopic);
+            newParentTopic.getChildrenTopicList().add(topic);
+        }
+        topic.setName(request.getTopicName());
+
+        return OperationResponse.ok();
+    }
+
     public OperationResponse deleteTopic(DeleteTopicRequest request) {
         //todo check "topicId" not empty
         Optional<Topic> topicOpt = findTopicById(request.getTopicId());
