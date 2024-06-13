@@ -53,7 +53,7 @@ public class TagService {
 
         Optional<Tag> storedTag = findTagById(request.getTagId());
         if (storedTag.isPresent()) {
-            storedTag.get().setName(request.getTagName())
+            storedTag.get().setName(request.getTagName());
         } else {
             //todo raise exception tag with such tagId not found
         }

@@ -3,11 +3,13 @@ package com.example.notes.dto.tag;
 import com.example.notes.dto.OperationResponse;
 import com.example.notes.model.Tag;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@EqualsAndHashCode(callSuper=true)
 public class GetTagListResponse extends OperationResponse {
 
     private Set<Tag> tagList;

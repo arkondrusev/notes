@@ -2,8 +2,10 @@ package com.example.notes.dto.tag;
 
 import com.example.notes.dto.OperationResponse;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper=true)
 public class CreateTagResponse extends OperationResponse {
 
     private Integer tagId;
