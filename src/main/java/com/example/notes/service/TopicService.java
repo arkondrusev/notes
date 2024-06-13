@@ -1,9 +1,7 @@
 package com.example.notes.service;
 
-import com.example.notes.dto.topic.CreateTopicRequest;
-import com.example.notes.dto.topic.CreateTopicResponse;
-import com.example.notes.dto.topic.GetTopicTreeResponse;
-import com.example.notes.dto.topic.TopicWrapper;
+import com.example.notes.dto.OperationResponse;
+import com.example.notes.dto.topic.*;
 import com.example.notes.model.Topic;
 import org.springframework.stereotype.Service;
 
@@ -22,23 +20,21 @@ public class TopicService {
 
     public CreateTopicResponse addTopic(CreateTopicRequest request) {
         //todo check "request" params are filled
-        checkTopicNameDuplicate(request.getTopicName());
 
-        Topic parentTopic = null;
-        if (request.getParentTopicId() != null) {
+        Topic newTopic;
+        if (request.getParentTopicId() == null) {
+            newTopic = new Topic(topicIdSequence.incrementAndGet(), request.getTopicName(), null);
+        } else {
             Optional<Topic> parentTopicOpt = findTopicById(request.getParentTopicId());
             if (parentTopicOpt.isPresent()) {
-                parentTopic = parentTopicOpt.get();
+                Topic parentTopic = parentTopicOpt.get();
+                newTopic = new Topic(topicIdSequence.incrementAndGet(), request.getTopicName(), parentTopic);
+                parentTopic.getChildrenTopicList().add(newTopic);
+                topicList.add(newTopic);
             } else {
-                // todo raise Exception "parent topic with such id not found"
+                throw new RuntimeException("Parent topic not found: id=" + request.getParentTopicId());
             }
         }
-
-        Topic newTopic = new Topic(topicIdSequence.incrementAndGet(), request.getTopicName(), parentTopic);
-        if (parentTopic != null) {
-            parentTopic.getChildrenTopicList().add(newTopic);
-        }
-        topicList.add(newTopic);
 
         return new CreateTopicResponse(newTopic.getId(), newTopic.getName(),
                 newTopic.getParentTopic() == null ? null : newTopic.getParentTopic().getId());
@@ -53,12 +49,6 @@ public class TopicService {
     private Optional<Topic> findTopicByName(String topicName) {
         return topicList.stream()
                 .filter(topic -> topic.getName().equals(topicName)).findFirst();
-    }
-
-    private void checkTopicNameDuplicate(String topicName) {
-        if (findTopicByName(topicName).isPresent()) {
-            throw new RuntimeException(String.format(DUPLICATE_TOPIC_NAME_MESSAGE, topicName));
-        }
     }
 
     public GetTopicTreeResponse getTopicTree() {
