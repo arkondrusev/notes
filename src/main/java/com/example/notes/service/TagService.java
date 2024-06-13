@@ -8,19 +8,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
 public class TagService {
 
     public static final String DUPLICATE_TAG_NAME_MESSAGE = "Duplicate tag name: %s";
+    public static final String NOT_FOUND_TAG_BY_ID_MESSAGE = "Tag not found. id=%s";
 
     private final TagRepository tagRepository;
-
-    private final Set<Tag> tagSet = new HashSet<>();
 
     public CreateTagResponse createTag(CreateTagRequest request) {
         //todo check name is not null and not empty
@@ -33,45 +30,35 @@ public class TagService {
 
     // check if tag with name "newTagName" already exists
     private void checkTagDuplicate(String newTagName) {
-        if (findTagByName(newTagName).isPresent()) {
+        if (tagRepository.findTagByName(newTagName).isPresent()) {
             throw new RuntimeException(String.format(DUPLICATE_TAG_NAME_MESSAGE, newTagName));
         }
     }
 
-    public Optional<Tag> findTagById(Integer id) {
-        return tagSet.stream().filter(n -> n.getId().equals(id)).findFirst();
-    }
-
-    private Optional<Tag> findTagByName(String tagName) {
-        return tagSet.stream().filter(n -> n.getName().equals(tagName)).findFirst();
-    }
-
     public GetTagListResponse getTagList() {
-        return new GetTagListResponse(tagSet);
+        Set<Tag> allTags = tagRepository.findAllTags();
+        HashSet<TagWrapper> tagWrapperList = new HashSet<>();
+        allTags.forEach(tag -> {tagWrapperList.add(new TagWrapper(tag.getId(), tag.getName()));});
+
+        return new GetTagListResponse(tagWrapperList);
     }
 
     public OperationResponse updateTag(UpdateTagRequest request) {
         //todo check updatedTag id and name filled
         checkTagDuplicate(request.getTagName());
 
-        Optional<Tag> storedTag = findTagById(request.getTagId());
-        if (storedTag.isPresent()) {
-            storedTag.get().setName(request.getTagName());
-        } else {
-            //todo raise exception tag with such tagId not found
-        }
+        tagRepository.updateTag(tagRepository.findTagById(request.getTagId())
+                .orElseThrow(() -> new RuntimeException(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, request.getTagId()))));
 
         return OperationResponse.ok();
     }
 
     public OperationResponse deleteTag(DeleteTagRequest request) {
         // todo check "tagId" is not null
-        Optional<Tag> storedTag = findTagById(request.getTagId());
-        if (storedTag.isPresent()) {
-            tagSet.remove(storedTag.get());
-        } else {
-            //todo raise exception tag with such tagId not found
-        }
+
+        Tag storedTag = tagRepository.findTagById(request.getTagId())
+                .orElseThrow(() -> new RuntimeException(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, request.getTagId())));
+        tagRepository.deleteTag(storedTag);
 
         return OperationResponse.ok();
     }
