@@ -70,17 +70,20 @@ public class TopicService {
         return topicWrapper;
     }
 
-    public void deleteTopic(Integer topicId) {
+    public OperationResponse deleteTopic(DeleteTopicRequest request) {
         //todo check "topicId" not empty
-        Optional<Topic> topicOpt = findTopicById(topicId);
+        Optional<Topic> topicOpt = findTopicById(request.getTopicId());
         if (topicOpt.isPresent()) {
             Topic topic = topicOpt.get();
-            topic.getParentTopic().getChildrenTopicList().remove(topic);
+            if (topic.getParentTopic() != null) {
+                topic.getParentTopic().getChildrenTopicList().remove(topic);
+            }
             topic.getChildrenTopicList().forEach(n -> n.setParentTopic(null));
             topicList.remove(topic);
         } else {
             //todo throw exception topic with such id not found
         }
+        return OperationResponse.ok();
     }
 
 }

@@ -28,8 +28,8 @@ public class TopicController {
     }
 
     @DeleteMapping("deleteTopic")
-    public void deleteTopic(@RequestBody Integer topicId) {
-        topicService.deleteTopic(topicId);
+    public OperationResponse deleteTopic(@RequestBody DeleteTopicRequest request) {
+        return topicService.deleteTopic(request);
     }
 
 }
