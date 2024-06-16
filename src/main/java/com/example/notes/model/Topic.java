@@ -5,9 +5,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.ToString;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Data
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(exclude = {"parentTopic"})
@@ -19,18 +16,11 @@ public class Topic {
     @NonNull
     private String name;
     private Topic parentTopic;
-    @NonNull
-    private Set<Topic> childrenTopicList;
 
-    public Topic(@NonNull Integer topicId, @NonNull String topicName, Topic parentTopic, @NonNull Set<Topic> childrenTopicList) {
+    public Topic(@NonNull Integer topicId, @NonNull String topicName, Topic parentTopic) {
         this.id = topicId;
         this.name = topicName;
         this.parentTopic = parentTopic;
-        this.childrenTopicList = childrenTopicList;
-    }
-
-    public Topic(@NonNull Integer topicId, @NonNull String topicName, Topic parentTopic) {
-        this(topicId, topicName, parentTopic, new HashSet<>());
     }
 
     public Topic(@NonNull Integer topicId, @NonNull String topicName) {

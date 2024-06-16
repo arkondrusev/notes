@@ -3,58 +3,25 @@ package com.example.notes.service;
 import com.example.notes.dto.OperationResponse;
 import com.example.notes.dto.topic.*;
 import com.example.notes.model.Topic;
+import com.example.notes.repository.TopicRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
+@RequiredArgsConstructor
 public class TopicService {
 
-    public static final String DUPLICATE_TOPIC_NAME_MESSAGE = "Duplicate topic name: %s";
+    private static final String PARENT_TOPIC_NOT_FOUND_MESSAGE = "Parent topic not found: id=%s";
+    private static final String TOPIC_NOT_FOUND_MESSAGE = "Topic not found: id=%s";
 
-    private final Set<Topic> topicList = new HashSet<>();
-    private final AtomicInteger topicIdSequence = new AtomicInteger(0);
-
-    public CreateTopicResponse addTopic(CreateTopicRequest request) {
-        //todo check "request" params are filled
-
-        Topic newTopic;
-        if (request.getParentTopicId() == null) {
-            newTopic = new Topic(topicIdSequence.incrementAndGet(), request.getTopicName(), null);
-        } else {
-            Optional<Topic> parentTopicOpt = findTopicById(request.getParentTopicId());
-            if (parentTopicOpt.isPresent()) {
-                Topic parentTopic = parentTopicOpt.get();
-                newTopic = new Topic(topicIdSequence.incrementAndGet(), request.getTopicName(), parentTopic);
-                parentTopic.getChildrenTopicList().add(newTopic);
-                topicList.add(newTopic);
-            } else {
-                throw new RuntimeException("Parent topic not found: id=" + request.getParentTopicId());
-            }
-        }
-
-        return new CreateTopicResponse(newTopic.getId(), newTopic.getName(),
-                newTopic.getParentTopic() == null ? null : newTopic.getParentTopic().getId());
-    }
-
-    public Optional<Topic> findTopicById(Integer topicId) {
-        return topicList.stream()
-                .filter(topic -> topic.getId().equals(topicId))
-                .findFirst();
-    }
-
-    private Optional<Topic> findTopicByName(String topicName) {
-        return topicList.stream()
-                .filter(topic -> topic.getName().equals(topicName)).findFirst();
-    }
+    private final TopicRepository topicRepository;
 
     public GetTopicTreeResponse getTopicTree() {
         Set<TopicWrapper> rootList = new HashSet<>();
-
-        topicList.stream()
+        topicRepository.findAllTopics().stream()
                 .filter(topic -> topic.getParentTopic() == null)
                 .forEach(topic-> rootList.add(fillTopicWrapper(topic)));
 
@@ -64,49 +31,61 @@ public class TopicService {
     private TopicWrapper fillTopicWrapper(Topic topic) {
         TopicWrapper topicWrapper = new TopicWrapper(topic.getId(), topic.getName()
                 , topic.getParentTopic() == null ? null : topic.getParentTopic().getId());
-        for (Topic child : topic.getChildrenTopicList()) {
+        for (Topic child : topicRepository.findTopicsByParentId(topic.getId())) {
             topicWrapper.getChildrenTopicList().add(fillTopicWrapper(child));
         }
         return topicWrapper;
     }
 
-    public OperationResponse updateTopic(UpdateTopicRequest request) {
+    public CreateTopicResponse createTopic(final CreateTopicRequest request) {
+        //todo check "request" params are filled
+
+        Topic parentTopic = null;
+        if (request.getParentTopicId() != null) {
+            parentTopic = topicRepository.findTopicById(request.getParentTopicId())
+                    .orElseThrow(()-> new RuntimeException(
+                            String.format(PARENT_TOPIC_NOT_FOUND_MESSAGE, request.getParentTopicId())));
+        }
+
+        Topic newTopic = topicRepository.addTopic(request.getTopicName(), parentTopic);
+
+        return new CreateTopicResponse(newTopic.getId(), newTopic.getName(),
+                newTopic.getParentTopic() == null ? null : parentTopic.getId());
+    }
+
+    public OperationResponse updateTopic(final UpdateTopicRequest request) {
         // todo check request params
 
-        Optional<Topic> topicOpt = findTopicById(request.getTopicId());
-        if (topicOpt.isEmpty()) {
-            throw new RuntimeException("Topic not found: id=" + request.getTopicId());
-        }
+        Topic foundTopic = topicRepository.findTopicById(request.getTopicId())
+                .orElseThrow(() -> new RuntimeException(
+                        String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId())));
 
-        Topic topic = topicOpt.get();
+        foundTopic.setName(request.getTopicName());
+        // parent topic update
         if (request.getParentTopicId() != null) {
-            Optional<Topic> parentTopicOpt = findTopicById(request.getParentTopicId());
-            if (parentTopicOpt.isEmpty()) {
-                throw new RuntimeException("Parent topic not found: id=" + request.getParentTopicId());
-            }
-            topic.getParentTopic().getChildrenTopicList().remove(topic);
-            Topic newParentTopic = parentTopicOpt.get();
-            topic.setParentTopic(newParentTopic);
-            newParentTopic.getChildrenTopicList().add(topic);
+            Topic newParentTopic = topicRepository.findTopicById(request.getParentTopicId())
+                    .orElseThrow(() -> new RuntimeException(
+                            String.format(PARENT_TOPIC_NOT_FOUND_MESSAGE, request.getParentTopicId())));
+            foundTopic.setParentTopic(newParentTopic);
+        } else {
+            foundTopic.setParentTopic(null);
         }
-        topic.setName(request.getTopicName());
 
         return OperationResponse.ok();
     }
 
-    public OperationResponse deleteTopic(DeleteTopicRequest request) {
+    public OperationResponse deleteTopic(final DeleteTopicRequest request) {
         //todo check "topicId" not empty
-        Optional<Topic> topicOpt = findTopicById(request.getTopicId());
-        if (topicOpt.isPresent()) {
-            Topic topic = topicOpt.get();
-            if (topic.getParentTopic() != null) {
-                topic.getParentTopic().getChildrenTopicList().remove(topic);
-            }
-            topic.getChildrenTopicList().forEach(n -> n.setParentTopic(null));
-            topicList.remove(topic);
-        } else {
-            //todo throw exception topic with such id not found
-        }
+
+        Topic foundTopic = topicRepository.findTopicById(request.getTopicId())
+                .orElseThrow(() -> new RuntimeException(
+                        String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId())));
+
+        topicRepository.findTopicsByParentId(foundTopic.getParentTopic().getId())
+                .forEach(t -> t.setParentTopic(null));
+
+        topicRepository.deleteTopic(foundTopic);
+
         return OperationResponse.ok();
     }
 

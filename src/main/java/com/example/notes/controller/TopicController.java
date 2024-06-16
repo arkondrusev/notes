@@ -15,7 +15,7 @@ public class TopicController {
 
     @PostMapping("createTopic")
     public CreateTopicResponse createTopic(@RequestBody CreateTopicRequest request) {
-        return topicService.addTopic(request);
+        return topicService.createTopic(request);
     }
 
     //todo implement possibility to get subtree using "topicId" as parameter

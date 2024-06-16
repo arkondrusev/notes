@@ -33,11 +33,6 @@ public class TagRepository {
         return tag;
     }
 
-    public void updateTag(Tag tag) {
-        tagSet.remove(tag);
-        tagSet.add(tag);
-    }
-
     public void deleteTag(Tag tag) {
         tagSet.remove(tag);
     }

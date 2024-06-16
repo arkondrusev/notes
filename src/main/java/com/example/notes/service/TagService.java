@@ -47,8 +47,9 @@ public class TagService {
         //todo check updatedTag id and name filled
         checkTagDuplicate(request.getTagName());
 
-        tagRepository.updateTag(tagRepository.findTagById(request.getTagId())
-                .orElseThrow(() -> new RuntimeException(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, request.getTagId()))));
+        Tag foundTag = tagRepository.findTagById(request.getTagId())
+                .orElseThrow(() -> new RuntimeException(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, request.getTagId())));
+        foundTag.setName(request.getTagName());
 
         return OperationResponse.ok();
     }
