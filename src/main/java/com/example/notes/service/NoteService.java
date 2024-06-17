@@ -6,99 +6,97 @@ import com.example.notes.dto.tag.TagWrapper;
 import com.example.notes.model.Note;
 import com.example.notes.model.Tag;
 import com.example.notes.model.Topic;
+import com.example.notes.repository.NoteRepository;
+import com.example.notes.repository.TagRepository;
+import com.example.notes.repository.TopicRepository;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.example.notes.service.TopicService.TOPIC_NOT_FOUND_MESSAGE;
 
 @Service
+@RequiredArgsConstructor
 public class NoteService {
 
-    private final Set<Note> noteList = new HashSet<>();
-    private final AtomicInteger noteIdSequence = new AtomicInteger(0);
-    private final TopicService topicService;
-    private final TagService tagService;
+    public static final String NOTE_NOT_FOUND_MESSAGE = "Note not found: id=%s";
 
-    public NoteService(TopicService topicService, TagService tagService) {
-        this.topicService = topicService;
-        this.tagService = tagService;
+    private final NoteRepository noteRepository;
+    private final TopicRepository topicRepository;
+    private final TagRepository tagRepository;
+
+    public GetNoteListResponse getNoteList() {
+        Set<NoteWrapper> noteWrapperList = new HashSet<>();
+        noteRepository.findAllNotes().forEach(note -> {
+            Integer topicId = note.getTopic().getId();
+            String topicName = note.getTopic().getName();
+            Set<TagWrapper> tagWrapperList = new HashSet<>();
+            note.getTagList().forEach(tag -> tagWrapperList.add(new TagWrapper(tag.getId(), tag.getName())));
+            noteWrapperList.add(new NoteWrapper(note.getId(), note.getName(), topicId, topicName, note.getContent(), tagWrapperList));
+        });
+
+        return new GetNoteListResponse(noteWrapperList);
     }
 
-    public CreateNoteResponse addNote(CreateNoteRequest request) {
+    public CreateNoteResponse createNote(@NonNull CreateNoteRequest request) {
         //todo check request params (name, topicId) exist
-        Optional<Topic> topicOpt = topicService.findTopicById(request.getTopicId());
-        if (topicOpt.isEmpty()) {
-            throw new RuntimeException(String.format("Topic with id={0} not found",request.getTopicId()));
-        }
-        Note newNote = new Note(noteIdSequence.incrementAndGet(), request.getNoteName(),
-                topicOpt.get(), request.getNoteContent(), findTagsByTagWrappers(request.getNoteTagList()));
-        noteList.add(newNote);
+
+        Topic topic = topicRepository.findTopicById(request.getTopicId())
+                .orElseThrow(() -> new RuntimeException(
+                        String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId())));
+        Set<Tag> tagListByIdList = tagRepository
+                .findTagListByIdList(getTagIdListByTagWrapperList(request.getNoteTagList()));
+        //todo check if found a Tag for every id in list, throw exception otherwise
+        Note newNote = noteRepository.createNote(request.getNoteName(),
+                topic, request.getNoteContent(), tagListByIdList);
 
         return new CreateNoteResponse(newNote.getId(), newNote.getName());
     }
 
-    private Note findNoteById(int id) {
-        return noteList.stream().filter(note -> note.getId() == id).findFirst().orElse(null);
+    private @NonNull Set<Integer> getTagIdListByTagWrapperList(@NonNull Set<TagWrapper> tagWrapperList) {
+        Set<Integer> tagIdList = new HashSet<>();
+        tagWrapperList.forEach(tagWrapper -> tagIdList.add(tagWrapper.getTagId()));
+
+        return tagIdList;
     }
 
-    private Set<Tag> findTagsByTagWrappers(Set<TagWrapper> tagWrapperList) {
-        Set<Tag> tagList = new HashSet<>();
-        tagWrapperList.forEach(tw->{
-            Optional<Tag> tag = tagService.findTagById(tw.getTagId());
-            if (tag.isEmpty()) {
-                throw new RuntimeException(String.format("Tag with id={0} not found",tw.getTagId()));
-            }
-            tagList.add(tag.get());
-        });
-
-        return tagList;
-    }
-
-    public OperationResponse updateNote(UpdateNoteRequest request) {
+    public OperationResponse updateNote(@NonNull UpdateNoteRequest request) {
         //todo check request params
-        Note foundNote = findNoteById(request.getNoteId());
-        if (foundNote == null) {
-            throw new RuntimeException(String.format("Note with id={0} not found",request.getNoteId()));
-        }
 
-
-        if (request.getTopicId() != null) {
-            Optional<Topic> topicOpt = topicService.findTopicById(request.getTopicId());
-            if (topicOpt.isEmpty()) {
-                throw new RuntimeException(String.format("Topic with id={0} not found",request.getTopicId()));
+        Note storedNote = noteRepository.findNoteById(request.getNoteId())
+                .orElseThrow(() -> new RuntimeException(
+                        String.format(NOTE_NOT_FOUND_MESSAGE, request.getNoteId())));
+        //update note's topic
+        if (!(Objects.equals(request.getTopicId(), storedNote.getTopic() == null
+                ? null : storedNote.getTopic().getId()))) {
+            if (Objects.nonNull(request.getTopicId())) {
+                storedNote.setTopic(topicRepository.findTopicById(request.getTopicId())
+                        .orElseThrow(() -> new RuntimeException(
+                                String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId()))));
             } else {
-                foundNote.setTopic(topicOpt.get());
+                storedNote.setTopic(null);
             }
         }
-        foundNote.setTagList(findTagsByTagWrappers(request.getNoteTagList()));
-        foundNote.setContent(request.getNoteContent());
-        foundNote.setName(request.getNoteName());
+        Set<Tag> tagListByIdList = tagRepository
+                .findTagListByIdList(getTagIdListByTagWrapperList(request.getNoteTagList()));
+        //todo check if found a Tag for every id in list, throw exception otherwise
+        storedNote.setTagList(tagListByIdList);
+        storedNote.setContent(request.getNoteContent());
+        storedNote.setName(request.getNoteName());
 
         return OperationResponse.ok();
     }
 
-    public OperationResponse deleteNote(DeleteNoteRequest request) {
-        return OperationResponse.ok();
-    }
+    public OperationResponse deleteNote(@NonNull DeleteNoteRequest request) {
+        // todo check request params
+        noteRepository.deleteNote(noteRepository.findNoteById(request.getNoteId())
+                .orElseThrow(()-> new RuntimeException(String.format(NOTE_NOT_FOUND_MESSAGE, request.getNoteId()))));
 
-    public GetNoteListResponse getNoteList() {
-        Set<NoteWrapper> noteWrapperList = new HashSet<>();
-        noteList.forEach(note -> {
-            Integer topicId = null;
-            String topicName = null;
-            if (note.getTopic() != null) {
-                topicId = note.getTopic().getId();
-                topicName = note.getTopic().getName();
-            }
-            Set<TagWrapper> tagWrapperList = new HashSet<>();
-            note.getTagList().forEach(tag -> {
-                tagWrapperList.add(new TagWrapper(tag.getId(), tag.getName()));
-            });
-            noteWrapperList.add(new NoteWrapper(note.getId(), note.getName(), topicId, topicName, note.getContent(), tagWrapperList));
-        });
-        return new GetNoteListResponse(noteWrapperList);
+        return OperationResponse.ok();
     }
 
 }

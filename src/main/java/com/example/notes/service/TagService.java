@@ -4,6 +4,7 @@ import com.example.notes.dto.OperationResponse;
 import com.example.notes.dto.tag.*;
 import com.example.notes.model.Tag;
 import com.example.notes.repository.TagRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,7 @@ public class TagService {
 
     private final TagRepository tagRepository;
 
-    public CreateTagResponse createTag(CreateTagRequest request) {
+    public CreateTagResponse createTag(@NonNull CreateTagRequest request) {
         //todo check name is not null and not empty
         checkTagDuplicate(request.getTagName());
 
@@ -38,12 +39,12 @@ public class TagService {
     public GetTagListResponse getTagList() {
         Set<Tag> allTags = tagRepository.findAllTags();
         HashSet<TagWrapper> tagWrapperList = new HashSet<>();
-        allTags.forEach(tag -> {tagWrapperList.add(new TagWrapper(tag.getId(), tag.getName()));});
+        allTags.forEach(tag -> tagWrapperList.add(new TagWrapper(tag.getId(), tag.getName())));
 
         return new GetTagListResponse(tagWrapperList);
     }
 
-    public OperationResponse updateTag(UpdateTagRequest request) {
+    public OperationResponse updateTag(@NonNull UpdateTagRequest request) {
         //todo check updatedTag id and name filled
         checkTagDuplicate(request.getTagName());
 
@@ -54,7 +55,7 @@ public class TagService {
         return OperationResponse.ok();
     }
 
-    public OperationResponse deleteTag(DeleteTagRequest request) {
+    public OperationResponse deleteTag(@NonNull DeleteTagRequest request) {
         // todo check "tagId" is not null
 
         Tag storedTag = tagRepository.findTagById(request.getTagId())

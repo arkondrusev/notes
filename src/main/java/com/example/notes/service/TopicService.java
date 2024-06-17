@@ -14,8 +14,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class TopicService {
 
-    private static final String PARENT_TOPIC_NOT_FOUND_MESSAGE = "Parent topic not found: id=%s";
-    private static final String TOPIC_NOT_FOUND_MESSAGE = "Topic not found: id=%s";
+    public static final String PARENT_TOPIC_NOT_FOUND_MESSAGE = "Parent topic not found: id=%s";
+    public static final String TOPIC_NOT_FOUND_MESSAGE = "Topic not found: id=%s";
 
     private final TopicRepository topicRepository;
 
@@ -34,6 +34,7 @@ public class TopicService {
         for (Topic child : topicRepository.findTopicsByParentId(topic.getId())) {
             topicWrapper.getChildrenTopicList().add(fillTopicWrapper(child));
         }
+
         return topicWrapper;
     }
 
@@ -59,7 +60,6 @@ public class TopicService {
         Topic foundTopic = topicRepository.findTopicById(request.getTopicId())
                 .orElseThrow(() -> new RuntimeException(
                         String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId())));
-
         foundTopic.setName(request.getTopicName());
         // parent topic update
         if (request.getParentTopicId() != null) {
@@ -80,7 +80,6 @@ public class TopicService {
         Topic foundTopic = topicRepository.findTopicById(request.getTopicId())
                 .orElseThrow(() -> new RuntimeException(
                         String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId())));
-
         topicRepository.findTopicsByParentId(foundTopic.getParentTopic().getId())
                 .forEach(t -> t.setParentTopic(null));
 

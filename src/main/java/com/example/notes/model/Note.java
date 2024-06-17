@@ -16,7 +16,6 @@ public class Note {
     private Integer id;
     @NonNull
     private String name;
-    @NonNull
     private Topic topic;
     private String content;
     private Set<Tag> tagList;

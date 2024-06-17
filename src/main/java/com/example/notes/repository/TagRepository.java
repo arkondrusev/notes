@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Repository
 public class TagRepository {
@@ -15,7 +16,13 @@ public class TagRepository {
     private final AtomicInteger tagIdSequence = new AtomicInteger(0);
 
     public Optional<Tag> findTagById(Integer id) {
-        return tagSet.stream().filter(n -> n.getId().equals(id)).findFirst();
+        HashSet<Integer> set = new HashSet<>();
+        set.add(id);
+        return findTagListByIdList(set).stream().findFirst();
+    }
+
+    public Set<Tag> findTagListByIdList(Set<Integer> idList) {
+        return tagSet.stream().filter((n)->idList.contains(n.getId())).collect(Collectors.toSet());
     }
 
     public Optional<Tag> findTagByName(String tagName) {
