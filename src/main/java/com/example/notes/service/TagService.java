@@ -21,8 +21,6 @@ public class TagService {
 
     private final TagRepository tagRepository;
 
-    private final Tag2WrapperMapper tagMapper;
-
     public CreateTagResponse createTag(@NonNull CreateTagRequest request) {
         //todo check name is not null and not empty
         checkTagDuplicate(request.getTagName());
@@ -42,7 +40,7 @@ public class TagService {
     public GetTagListResponse getTagList() {
         Set<Tag> allTags = tagRepository.findAllTags();
         HashSet<TagWrapper> tagWrapperList = new HashSet<>();
-        allTags.forEach(tag -> tagWrapperList.add(tagMapper.tag2TagWrapper(tag)));
+        allTags.forEach(tag -> tagWrapperList.add(Tag2WrapperMapper.INSTANCE.tag2TagWrapper(tag)));
 
         return new GetTagListResponse(tagWrapperList);
     }

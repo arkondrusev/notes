@@ -15,8 +15,4 @@ public interface Tag2WrapperMapper {
     @Mapping(source = "name", target = "tagName")
     TagWrapper tag2TagWrapper(Tag tag);
 
-    @Mapping(source = "tagId", target = "id")
-    @Mapping(source = "tagName", target = "name")
-    Tag tagWrapper2Tag(TagWrapper tagWrapper);
-
 }

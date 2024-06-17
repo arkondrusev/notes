@@ -30,15 +30,13 @@ public class NoteService {
     private final TopicRepository topicRepository;
     private final TagRepository tagRepository;
 
-    private final Tag2WrapperMapper tagMapper;
-
     public GetNoteListResponse getNoteList() {
         Set<NoteWrapper> noteWrapperList = new HashSet<>();
         noteRepository.findAllNotes().forEach(note -> {
             Integer topicId = note.getTopic().getId();
             String topicName = note.getTopic().getName();
             Set<TagWrapper> tagWrapperList = new HashSet<>();
-            note.getTagList().forEach(tag -> tagWrapperList.add(tagMapper.tag2TagWrapper(tag)));
+            note.getTagList().forEach(tag -> tagWrapperList.add(Tag2WrapperMapper.INSTANCE.tag2TagWrapper(tag)));
             noteWrapperList.add(new NoteWrapper(note.getId(), note.getName(), topicId, topicName, note.getContent(), tagWrapperList));
         });
 
