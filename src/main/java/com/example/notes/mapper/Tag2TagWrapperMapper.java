@@ -7,9 +7,9 @@ import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
 @Mapper(config = NotesAppMapperConfig.class)
-public interface Tag2WrapperMapper {
+public interface Tag2TagWrapperMapper {
 
-    Tag2WrapperMapper INSTANCE = Mappers.getMapper(Tag2WrapperMapper.class);
+    Tag2TagWrapperMapper INSTANCE = Mappers.getMapper(Tag2TagWrapperMapper.class);
 
     @Mapping(source = "id", target = "tagId")
     @Mapping(source = "name", target = "tagName")

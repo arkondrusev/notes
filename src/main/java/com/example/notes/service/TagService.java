@@ -3,7 +3,7 @@ package com.example.notes.service;
 import com.example.notes.dto.OperationResponse;
 import com.example.notes.dto.tag.*;
 import com.example.notes.mapper.Tag2CreateTagResponseMapper;
-import com.example.notes.mapper.Tag2WrapperMapper;
+import com.example.notes.mapper.Tag2TagWrapperMapper;
 import com.example.notes.model.Tag;
 import com.example.notes.repository.TagRepository;
 import lombok.NonNull;
@@ -41,7 +41,7 @@ public class TagService {
     public GetTagListResponse getTagList() {
         Set<Tag> allTags = tagRepository.findAllTags();
         HashSet<TagWrapper> tagWrapperList = new HashSet<>();
-        allTags.forEach(tag -> tagWrapperList.add(Tag2WrapperMapper.INSTANCE.tag2TagWrapper(tag)));
+        allTags.forEach(tag -> tagWrapperList.add(Tag2TagWrapperMapper.INSTANCE.tag2TagWrapper(tag)));
 
         return new GetTagListResponse(tagWrapperList);
     }
