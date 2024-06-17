@@ -3,6 +3,7 @@ package com.example.notes.service;
 import com.example.notes.dto.OperationResponse;
 import com.example.notes.dto.note.*;
 import com.example.notes.dto.tag.TagWrapper;
+import com.example.notes.mapper.Tag2WrapperMapper;
 import com.example.notes.model.Note;
 import com.example.notes.model.Tag;
 import com.example.notes.model.Topic;
@@ -29,13 +30,15 @@ public class NoteService {
     private final TopicRepository topicRepository;
     private final TagRepository tagRepository;
 
+    private final Tag2WrapperMapper tagMapper;
+
     public GetNoteListResponse getNoteList() {
         Set<NoteWrapper> noteWrapperList = new HashSet<>();
         noteRepository.findAllNotes().forEach(note -> {
             Integer topicId = note.getTopic().getId();
             String topicName = note.getTopic().getName();
             Set<TagWrapper> tagWrapperList = new HashSet<>();
-            note.getTagList().forEach(tag -> tagWrapperList.add(new TagWrapper(tag.getId(), tag.getName())));
+            note.getTagList().forEach(tag -> tagWrapperList.add(tagMapper.tag2TagWrapper(tag)));
             noteWrapperList.add(new NoteWrapper(note.getId(), note.getName(), topicId, topicName, note.getContent(), tagWrapperList));
         });
 

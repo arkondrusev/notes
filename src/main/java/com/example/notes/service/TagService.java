@@ -2,6 +2,7 @@ package com.example.notes.service;
 
 import com.example.notes.dto.OperationResponse;
 import com.example.notes.dto.tag.*;
+import com.example.notes.mapper.Tag2WrapperMapper;
 import com.example.notes.model.Tag;
 import com.example.notes.repository.TagRepository;
 import lombok.NonNull;
@@ -19,6 +20,8 @@ public class TagService {
     public static final String NOT_FOUND_TAG_BY_ID_MESSAGE = "Tag not found. id=%s";
 
     private final TagRepository tagRepository;
+
+    private final Tag2WrapperMapper tagMapper;
 
     public CreateTagResponse createTag(@NonNull CreateTagRequest request) {
         //todo check name is not null and not empty
@@ -39,7 +42,7 @@ public class TagService {
     public GetTagListResponse getTagList() {
         Set<Tag> allTags = tagRepository.findAllTags();
         HashSet<TagWrapper> tagWrapperList = new HashSet<>();
-        allTags.forEach(tag -> tagWrapperList.add(new TagWrapper(tag.getId(), tag.getName())));
+        allTags.forEach(tag -> tagWrapperList.add(tagMapper.tag2TagWrapper(tag)));
 
         return new GetTagListResponse(tagWrapperList);
     }
