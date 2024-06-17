@@ -24,8 +24,8 @@ public class NoteRepository {
         return noteSet.stream().filter(n -> n.getName().equals(noteName)).findFirst();
     }
 
-    private Optional<Note> findNoteByTopicId(Integer topicId) {
-        return noteSet.stream().filter(note -> note.getTopic().getId() == topicId).findFirst();
+    public Optional<Note> findNoteByTopicId(Integer topicId) {
+        return noteSet.stream().filter(note -> note.getTopic().getId().equals(topicId)).findFirst();
     }
 
     public Set<Note> findAllNotes() {
