@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
-@Mapper(componentModel = "spring")
+@Mapper(config = NotesAppMapperConfig.class)
 public interface Tag2WrapperMapper {
 
     Tag2WrapperMapper INSTANCE = Mappers.getMapper(Tag2WrapperMapper.class);
