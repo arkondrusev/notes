@@ -18,7 +18,7 @@ public class OperationResponse {
     @NonNull
     private Integer resultCode;
     @NonNull
-    private String ResultMessage;
+    private String resultMessage;
 
     public static OperationResponse ok() {
         return new OperationResponse(RESULT_CODE__OK, RESULT_MESSAGE__OK);

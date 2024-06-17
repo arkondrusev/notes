@@ -2,6 +2,7 @@ package com.example.notes.service;
 
 import com.example.notes.dto.OperationResponse;
 import com.example.notes.dto.tag.*;
+import com.example.notes.mapper.Tag2CreateTagResponseMapper;
 import com.example.notes.mapper.Tag2WrapperMapper;
 import com.example.notes.model.Tag;
 import com.example.notes.repository.TagRepository;
@@ -27,7 +28,7 @@ public class TagService {
 
         Tag tag = tagRepository.addTag(request.getTagName());
 
-        return new CreateTagResponse(tag.getId(), tag.getName());
+        return Tag2CreateTagResponseMapper.INSTANCE.tag2CreateTagResponse(tag);
     }
 
     // check if tag with name "newTagName" already exists
