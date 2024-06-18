@@ -2,6 +2,7 @@ package com.example.notes.service;
 
 import com.example.notes.dto.OperationResponse;
 import com.example.notes.dto.topic.*;
+import com.example.notes.mapper.Topic2TopicWrapperMapper;
 import com.example.notes.model.Topic;
 import com.example.notes.repository.TopicRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,19 +24,9 @@ public class TopicService {
         Set<TopicWrapper> rootList = new HashSet<>();
         topicRepository.findAllTopics().stream()
                 .filter(topic -> topic.getParentTopic() == null)
-                .forEach(topic-> rootList.add(fillTopicWrapper(topic)));
+                .forEach(topic-> rootList.add(Topic2TopicWrapperMapper.INSTANCE.topic2TopicWrapper(topic)));
 
         return new GetTopicTreeResponse(rootList);
-    }
-
-    private TopicWrapper fillTopicWrapper(Topic topic) {
-        TopicWrapper topicWrapper = new TopicWrapper(topic.getId(), topic.getName()
-                , topic.getParentTopic() == null ? null : topic.getParentTopic().getId());
-        for (Topic child : topicRepository.findTopicsByParentId(topic.getId())) {
-            topicWrapper.getChildrenTopicList().add(fillTopicWrapper(child));
-        }
-
-        return topicWrapper;
     }
 
     public CreateTopicResponse createTopic(final CreateTopicRequest request) {
