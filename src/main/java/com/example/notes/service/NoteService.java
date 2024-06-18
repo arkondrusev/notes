@@ -3,6 +3,7 @@ package com.example.notes.service;
 import com.example.notes.dto.OperationResponse;
 import com.example.notes.dto.note.*;
 import com.example.notes.dto.tag.TagWrapper;
+import com.example.notes.mapper.Note2CreateNoteResponseMapper;
 import com.example.notes.mapper.Note2NoteWrapperMapper;
 import com.example.notes.model.Note;
 import com.example.notes.model.Tag;
@@ -51,7 +52,7 @@ public class NoteService {
         Note newNote = noteRepository.createNote(request.getNoteName(),
                 topic, request.getNoteContent(), tagListByIdList);
 
-        return new CreateNoteResponse(newNote.getId(), newNote.getName());
+        return Note2CreateNoteResponseMapper.INSTANCE.note2CreateNoteResponse(newNote);
     }
 
     private @NonNull Set<Integer> getTagIdListByTagWrapperList(@NonNull Set<TagWrapper> tagWrapperList) {
