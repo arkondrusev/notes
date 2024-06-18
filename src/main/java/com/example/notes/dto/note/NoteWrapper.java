@@ -1,16 +1,14 @@
 package com.example.notes.dto.note;
 
 import com.example.notes.dto.tag.TagWrapper;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import java.util.Set;
 
 @Data
 @RequiredArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class NoteWrapper {
 
     @NonNull
