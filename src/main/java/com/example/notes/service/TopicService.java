@@ -2,9 +2,11 @@ package com.example.notes.service;
 
 import com.example.notes.dto.OperationResponse;
 import com.example.notes.dto.topic.*;
+import com.example.notes.mapper.Topic2CreateTopicResponseMapper;
 import com.example.notes.mapper.Topic2TopicWrapperMapper;
 import com.example.notes.model.Topic;
 import com.example.notes.repository.TopicRepository;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +31,7 @@ public class TopicService {
         return new GetTopicTreeResponse(rootList);
     }
 
-    public CreateTopicResponse createTopic(final CreateTopicRequest request) {
+    public CreateTopicResponse createTopic(@NonNull final CreateTopicRequest request) {
         //todo check "request" params are filled
 
         Topic parentTopic = null;
@@ -39,13 +41,11 @@ public class TopicService {
                             String.format(PARENT_TOPIC_NOT_FOUND_MESSAGE, request.getParentTopicId())));
         }
 
-        Topic newTopic = topicRepository.addTopic(request.getTopicName(), parentTopic);
-
-        return new CreateTopicResponse(newTopic.getId(), newTopic.getName(),
-                newTopic.getParentTopic() == null ? null : parentTopic.getId());
+        return Topic2CreateTopicResponseMapper.INSTANCE
+                .topic2CreateTopicResponse(topicRepository.createTopic(request.getTopicName(), parentTopic));
     }
 
-    public OperationResponse updateTopic(final UpdateTopicRequest request) {
+    public OperationResponse updateTopic(@NonNull final UpdateTopicRequest request) {
         // todo check request params
 
         Topic foundTopic = topicRepository.findTopicById(request.getTopicId())
@@ -65,7 +65,7 @@ public class TopicService {
         return OperationResponse.ok();
     }
 
-    public OperationResponse deleteTopic(final DeleteTopicRequest request) {
+    public OperationResponse deleteTopic(@NonNull final DeleteTopicRequest request) {
         //todo check "topicId" not empty
 
         Topic foundTopic = topicRepository.findTopicById(request.getTopicId())

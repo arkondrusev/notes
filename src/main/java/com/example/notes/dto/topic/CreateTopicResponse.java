@@ -3,10 +3,12 @@ package com.example.notes.dto.topic;
 import com.example.notes.dto.OperationResponse;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 @Data
 @EqualsAndHashCode(callSuper=true)
+@NoArgsConstructor
 public class CreateTopicResponse extends OperationResponse {
 
     private Integer topicId;

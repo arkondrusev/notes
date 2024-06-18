@@ -37,7 +37,7 @@ public class TopicRepository {
         return topicList;
     }
 
-    public Topic addTopic(String topicName, Topic parentTopic) {
+    public Topic createTopic(String topicName, Topic parentTopic) {
         Topic newTopic = new Topic(topicIdSequence.incrementAndGet(), topicName, parentTopic);
         topicList.add(newTopic);
 
