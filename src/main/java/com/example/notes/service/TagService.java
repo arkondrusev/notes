@@ -22,11 +22,16 @@ public class TagService {
 
     private final TagRepository tagRepository;
 
-    public CreateTagResponse createTag(@NonNull CreateTagRequest request) {
-        //todo check name is not null and not empty
-        checkTagDuplicate(request.getTagName());
+    public OperationResponse createTag(@NonNull CreateTagRequest request) {
+        Tag tag;
+        try {
+            //todo check name is not null and not empty
+            checkTagDuplicate(request.getTagName());
 
-        Tag tag = tagRepository.addTag(request.getTagName());
+            tag = tagRepository.createTag(request.getTagName());
+        } catch (Throwable t) {
+            return OperationResponse.error(t.getMessage());
+        }
 
         return Tag2CreateTagResponseMapper.INSTANCE.tag2CreateTagResponse(tag);
     }
@@ -47,22 +52,30 @@ public class TagService {
     }
 
     public OperationResponse updateTag(@NonNull UpdateTagRequest request) {
-        //todo check updatedTag id and name filled
-        checkTagDuplicate(request.getTagName());
+        try {
+            //todo check updatedTag id and name filled
+            checkTagDuplicate(request.getTagName());
 
-        Tag foundTag = tagRepository.findTagById(request.getTagId())
-                .orElseThrow(() -> new RuntimeException(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, request.getTagId())));
-        foundTag.setName(request.getTagName());
+            Tag foundTag = tagRepository.findTagById(request.getTagId())
+                    .orElseThrow(() -> new RuntimeException(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, request.getTagId())));
+            foundTag.setName(request.getTagName());
+        } catch (Throwable t) {
+            return OperationResponse.error(t.getMessage());
+        }
 
         return OperationResponse.ok();
     }
 
     public OperationResponse deleteTag(@NonNull DeleteTagRequest request) {
-        // todo check "tagId" is not null
+        try {
+            // todo check "tagId" is not null
 
-        Tag storedTag = tagRepository.findTagById(request.getTagId())
-                .orElseThrow(() -> new RuntimeException(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, request.getTagId())));
-        tagRepository.deleteTag(storedTag);
+            Tag storedTag = tagRepository.findTagById(request.getTagId())
+                    .orElseThrow(() -> new RuntimeException(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, request.getTagId())));
+            tagRepository.deleteTag(storedTag);
+        } catch (Throwable t) {
+            return OperationResponse.error(t.getMessage());
+        }
 
         return OperationResponse.ok();
     }

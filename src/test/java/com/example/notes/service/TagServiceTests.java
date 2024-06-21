@@ -1,89 +1,126 @@
 package com.example.notes.service;
 
-import com.example.notes.dto.tag.CreateTagResponse;
-import com.example.notes.dto.tag.GetTagListResponse;
+import com.example.notes.dto.OperationResponse;
+import com.example.notes.dto.tag.*;
+import com.example.notes.mapper.Tag2TagWrapperMapper;
 import com.example.notes.model.Tag;
-import org.junit.jupiter.api.*;
+import com.example.notes.repository.TagRepository;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
+
+import static com.example.notes.service.TagService.DUPLICATE_TAG_NAME_MESSAGE;
+import static com.example.notes.service.TagService.NOT_FOUND_TAG_BY_ID_MESSAGE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
         TagService.class
 })
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TagServiceTests {
 
     @Autowired
     private TagService tagService;
 
-    private final String expectedTagName1 = "TestTag1";
-    private final String expectedTagName2 = "TestTag2";
+    private final String expectedTagName1 = "TestTagName1";
+    private final String expectedTagName2 = "TestTagName2";
+
+    @MockBean
+    private TagRepository tagRepository;
 
     @Test
-    @Order(1)
-    void addTag_success() {
-        tagService.addTag(expectedTagName1);
-        CreateTagResponse createTagResponse = tagService.addTag(expectedTagName2);
+    void createTag_success() {
+        CreateTagRequest request = new CreateTagRequest(expectedTagName1);
+        CreateTagResponse expectedResponse = new CreateTagResponse(1, expectedTagName1);
+        when(tagRepository.createTag(expectedTagName1)).thenReturn(new Tag(1, expectedTagName1));
 
-        Assertions.assertNotNull(createTagResponse);
-        Assertions.assertNotNull(createTagResponse.getTagId());
-        Assertions.assertEquals(expectedTagName2,createTagResponse.getTagName());
+        OperationResponse actualResponse = tagService.createTag(request);
+
+        assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
-    @Order(2)
-    void addTag_fail_duplicateTagException() {
-        String expectedExceptionMessage = String.format(tagService.DUPLICATE_TAG_NAME_MESSAGE, expectedTagName2);
-        Throwable actualException = Assertions.assertThrows(RuntimeException.class,
-                () -> tagService.addTag(expectedTagName2));
+    void createTag_fail_duplicateTagException() {
+        CreateTagRequest request = new CreateTagRequest(expectedTagName1);
+        OperationResponse expectedResponse = OperationResponse.error(String.format(DUPLICATE_TAG_NAME_MESSAGE, expectedTagName1));
+        when(tagRepository.findTagByName(expectedTagName1))
+                .thenReturn(Optional.of(new Tag(1, expectedTagName1)));
 
-        Assertions.assertNotNull(actualException);
-        Assertions.assertInstanceOf(RuntimeException.class,actualException);
-        Assertions.assertEquals(expectedExceptionMessage,actualException.getMessage());
+        OperationResponse actualResponse = tagService.createTag(request);
+
+        assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
-    @Order(3)
     void getTagList_success() {
-        GetTagListResponse expectedResponse = new GetTagListResponse();
-        expectedResponse.setTagList(new HashSet<>());
-        expectedResponse.getTagList().add(new Tag(1, expectedTagName1));
-        expectedResponse.getTagList().add(new Tag(2, expectedTagName2));
+        Set<Tag> tagList = new HashSet<>();
+        tagList.add(new Tag(1, expectedTagName1));
+        tagList.add(new Tag(2, expectedTagName2));
+        GetTagListResponse expectedResponse = new GetTagListResponse(Tag2TagWrapperMapper
+                .INSTANCE.tag2TagWrapperList(tagList));
 
-        GetTagListResponse actualResponse = tagService.getTagList();
-        Assertions.assertNotNull(actualResponse);
-        Assertions.assertEquals(expectedResponse,actualResponse);
+        when(tagRepository.findAllTags()).thenReturn(tagList);
+
+        OperationResponse actualResponse = tagService.getTagList();
+
+        assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
-    @Order(4)
     void updateTag_success() {
-        String expectedTagName = "TestTag2Updated";
-        Tag expectedTag = new Tag(2, expectedTagName);
-        tagService.updateTag(expectedTag);
+        Tag tag = new Tag(1, expectedTagName1);
+        UpdateTagRequest request = new UpdateTagRequest(1, expectedTagName1);
+        OperationResponse expectedResponse = OperationResponse.ok();
+        when(tagRepository.findTagById(tag.getId())).thenReturn(Optional.of(tag));
 
-        Optional<Tag> actualTag = tagService.getTagList().getTagList().stream()
-                .filter(n -> n.getId().equals(expectedTag.getId())).findFirst();
+        OperationResponse actualResponse = tagService.updateTag(request);
 
-        Assertions.assertNotNull(actualTag);
-        Assertions.assertTrue(actualTag.isPresent());
-        Assertions.assertEquals(expectedTag.getName(),actualTag.get().getName());
+        assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
     void updateTag_fail_duplicateTagException() {
-        //todo implement the test
+        Tag tag = new Tag(1, expectedTagName1);
+        UpdateTagRequest request = new UpdateTagRequest(1, expectedTagName1);
+        OperationResponse expectedResponse = OperationResponse.error(String.format(DUPLICATE_TAG_NAME_MESSAGE, expectedTagName1));
+        when(tagRepository.findTagById(tag.getId())).thenReturn(Optional.of(tag));
+        when(tagRepository.findTagByName(expectedTagName1)).thenReturn(Optional.of(tag));
+
+        OperationResponse actualResponse = tagService.updateTag(request);
+
+        assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
     void deleteTag_success() {
-        //todo implement the test
+        Tag tag = new Tag(1, expectedTagName1);
+        DeleteTagRequest request = new DeleteTagRequest(tag.getId());
+        OperationResponse expectedResponse = OperationResponse.ok();
+        when(tagRepository.findTagById(tag.getId())).thenReturn(Optional.of(tag));
+
+        OperationResponse actualResponse = tagService.deleteTag(request);
+
+        assertEquals(expectedResponse, actualResponse);
+    }
+
+    @Test
+    void deleteTag_fail_tagNotFoundException() {
+        Integer tagId = 1;
+        DeleteTagRequest request = new DeleteTagRequest(tagId);
+        OperationResponse expectedResponse = OperationResponse.error(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, tagId));
+        when(tagRepository.findTagById(tagId)).thenReturn(Optional.empty());
+
+        OperationResponse actualResponse = tagService.deleteTag(request);
+
+        assertEquals(expectedResponse, actualResponse);
     }
 
 }

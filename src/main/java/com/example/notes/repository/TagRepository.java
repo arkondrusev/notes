@@ -33,7 +33,7 @@ public class TagRepository {
         return tagSet;
     }
 
-    public Tag addTag(String tagName) {
+    public Tag createTag(String tagName) {
         Tag tag = new Tag(tagIdSequence.incrementAndGet(), tagName);
         tagSet.add(tag);
 
