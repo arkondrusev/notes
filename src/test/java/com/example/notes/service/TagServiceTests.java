@@ -39,7 +39,8 @@ public class TagServiceTests {
     @Test
     void createTag_success() {
         CreateTagRequest request = new CreateTagRequest(expectedTagName1);
-        CreateTagResponse expectedResponse = new CreateTagResponse(1, expectedTagName1);
+        OperationResponse expectedResponse = new CreateTagResponse(1, expectedTagName1);
+        when(tagRepository.createTag(expectedTagName1)).thenReturn(new Tag(1, expectedTagName1));
         when(tagRepository.createTag(expectedTagName1)).thenReturn(new Tag(1, expectedTagName1));
 
         OperationResponse actualResponse = tagService.createTag(request);

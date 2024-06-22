@@ -1,13 +1,11 @@
 package com.example.notes.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class OperationResponse {
 
     public static final Integer RESULT_CODE__OK = 0;

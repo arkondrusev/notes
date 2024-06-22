@@ -71,7 +71,7 @@ public class TopicService {
         Topic foundTopic = topicRepository.findTopicById(request.getTopicId())
                 .orElseThrow(() -> new RuntimeException(
                         String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId())));
-        topicRepository.findTopicsByParentId(foundTopic.getParentTopic().getId())
+        topicRepository.findTopicsByParentId(request.getTopicId())
                 .forEach(t -> t.setParentTopic(null));
 
         topicRepository.deleteTopic(foundTopic);
