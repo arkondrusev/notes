@@ -40,19 +40,22 @@ public class NoteService {
         return new GetNoteListResponse(noteWrapperList);
     }
 
-    public CreateNoteResponse createNote(@NonNull CreateNoteRequest request) {
-        //todo check request params (name, topicId) exist
+    public OperationResponse createNote(@NonNull CreateNoteRequest request) {
+        try {
+            //todo check request params (name, topicId) exist
 
-        Topic topic = topicRepository.findTopicById(request.getTopicId())
-                .orElseThrow(() -> new RuntimeException(
-                        String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId())));
-        Set<Tag> tagListByIdList = tagRepository
-                .findTagListByIdList(getTagIdListByTagWrapperList(request.getNoteTagList()));
-        //todo check if found a Tag for every id in list, throw exception otherwise
-        Note newNote = noteRepository.createNote(request.getNoteName(),
-                topic, request.getNoteContent(), tagListByIdList);
-
-        return Note2CreateNoteResponseMapper.INSTANCE.note2CreateNoteResponse(newNote);
+            Topic topic = topicRepository.findTopicById(request.getTopicId())
+                    .orElseThrow(() -> new RuntimeException(
+                            String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId())));
+            Set<Tag> tagListByIdList = tagRepository
+                    .findTagListByIdList(getTagIdListByTagWrapperList(request.getNoteTagList()));
+            //todo check if found a Tag for every id in list, throw exception otherwise
+            Note newNote = noteRepository.createNote(request.getNoteName(),
+                    topic, request.getNoteContent(), tagListByIdList);
+            return Note2CreateNoteResponseMapper.INSTANCE.note2CreateNoteResponse(newNote);
+        } catch (Throwable t) {
+            return OperationResponse.error(t.getMessage());
+        }
     }
 
     private @NonNull Set<Integer> getTagIdListByTagWrapperList(@NonNull Set<TagWrapper> tagWrapperList) {
@@ -90,10 +93,13 @@ public class NoteService {
     }
 
     public OperationResponse deleteNote(@NonNull DeleteNoteRequest request) {
-        // todo check request params
-        noteRepository.deleteNote(noteRepository.findNoteById(request.getNoteId())
-                .orElseThrow(()-> new RuntimeException(String.format(NOTE_NOT_FOUND_MESSAGE, request.getNoteId()))));
-
+        try {
+            // todo check request params
+            noteRepository.deleteNote(noteRepository.findNoteById(request.getNoteId())
+                    .orElseThrow(() -> new RuntimeException(String.format(NOTE_NOT_FOUND_MESSAGE, request.getNoteId()))));
+        } catch (Throwable t) {
+            return OperationResponse.error(t.getMessage());
+        }
         return OperationResponse.ok();
     }
 

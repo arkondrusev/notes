@@ -22,10 +22,7 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
-        TopicService.class,
-        TopicRepository.class/*,
-        NotesAppMapperConfig.class,
-        Topic2TopicWrapperMapperImpl.class*/
+        TopicService.class
 })
 public class TopicServiceTests {
 

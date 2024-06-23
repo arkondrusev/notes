@@ -14,7 +14,7 @@ public class NoteController {
     private final NoteService noteService;
 
     @PostMapping("createNote")
-    public CreateNoteResponse createNote(@RequestBody CreateNoteRequest request) {
+    public OperationResponse createNote(@RequestBody CreateNoteRequest request) {
         return noteService.createNote(request);
     }
 
