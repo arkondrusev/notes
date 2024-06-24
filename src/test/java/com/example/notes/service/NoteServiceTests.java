@@ -70,7 +70,7 @@ public class NoteServiceTests {
         Note note1 = new Note(1, expectedNoteName1, topic1);
         CreateNoteRequest request = new CreateNoteRequest(expectedNoteName1, topic1.getId());
         CreateNoteResponse expectedResponse = new CreateNoteResponse(1, expectedNoteName1);
-        when(topicRepository.findTopicById(topic1.getId())).thenReturn(Optional.of(topic1));
+        when(topicRepository.findById(topic1.getId())).thenReturn(Optional.of(topic1));
         when(noteRepository.createNote(any(), any(), any(), any()))
                 .thenReturn(note1);
 

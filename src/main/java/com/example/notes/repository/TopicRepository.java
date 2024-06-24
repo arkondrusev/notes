@@ -12,40 +12,40 @@ import java.util.stream.Collectors;
 @Repository
 public class TopicRepository {
 
-    private final Set<Topic> topicList = new HashSet<>();
-    private final AtomicInteger topicIdSequence = new AtomicInteger(0);
+    private final Set<Topic> list = new HashSet<>();
+    private final AtomicInteger idSequence = new AtomicInteger(0);
 
-    public Optional<Topic> findTopicById(Integer topicId) {
-        return topicList.stream()
+    public Optional<Topic> findById(Integer topicId) {
+        return list.stream()
                 .filter(topic -> topic.getId().equals(topicId))
                 .findFirst();
     }
 
-    public Optional<Topic> findTopicByName(String topicName) {
-        return topicList.stream()
-                .filter(topic -> topic.getName().equals(topicName)).findFirst();
+    public Optional<Topic> findByName(String name) {
+        return list.stream()
+                .filter(topic -> topic.getName().equals(name)).findFirst();
     }
 
-    public Set<Topic> findTopicsByParentId(Integer parentId) {
-        return topicList.stream()
+    public Set<Topic> findListByParentId(Integer parentId) {
+        return list.stream()
                 .filter(topic -> topic.getParentTopic() != null
                         && topic.getParentTopic().getId().equals(parentId))
                 .collect(Collectors.toSet());
     }
 
-    public Set<Topic> findAllTopics() {
-        return topicList;
+    public Set<Topic> findAll() {
+        return list;
     }
 
-    public Topic createTopic(String topicName, Topic parentTopic) {
-        Topic newTopic = new Topic(topicIdSequence.incrementAndGet(), topicName, parentTopic);
-        topicList.add(newTopic);
+    public Topic create(String name, Topic parent) {
+        Topic newTopic = new Topic(idSequence.incrementAndGet(), name, parent);
+        list.add(newTopic);
 
         return newTopic;
     }
 
-    public void deleteTopic(Topic topic) {
-        topicList.remove(topic);
+    public void delete(Topic topic) {
+        list.remove(topic);
     }
 
 }

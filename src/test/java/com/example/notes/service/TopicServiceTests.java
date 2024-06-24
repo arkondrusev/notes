@@ -40,7 +40,7 @@ public class TopicServiceTests {
     void createTopic_success() {
         CreateTopicRequest request = new CreateTopicRequest(expectedTopicName1, null);
         CreateTopicResponse expectedResponse = new CreateTopicResponse(1, expectedTopicName1, null);
-        when(topicRepository.createTopic(expectedTopicName1, null))
+        when(topicRepository.create(expectedTopicName1, null))
                 .thenReturn(new Topic(1, expectedTopicName1, null));
 
         OperationResponse actualResponse = topicService.createTopic(request);
@@ -78,7 +78,7 @@ public class TopicServiceTests {
     void updateTopic_success() {
         UpdateTopicRequest request = new UpdateTopicRequest(1, expectedTopicName1, null);
         OperationResponse expectedResponse = OperationResponse.ok();
-        when(topicRepository.findTopicById(request.getTopicId()))
+        when(topicRepository.findById(request.getTopicId()))
                 .thenReturn(Optional.of(new Topic(1, expectedTopicName1, null)));
 
         OperationResponse actualResponse = topicService.updateTopic(request);
@@ -90,9 +90,9 @@ public class TopicServiceTests {
     void deleteTopic_success() {
         DeleteTopicRequest request = new DeleteTopicRequest(1);
         OperationResponse expectedResponse = OperationResponse.ok();
-        when(topicRepository.findTopicById(request.getTopicId()))
+        when(topicRepository.findById(request.getTopicId()))
                 .thenReturn(Optional.of(new Topic(1, expectedTopicName1, null)));
-        when(topicRepository.findTopicsByParentId(request.getTopicId()))
+        when(topicRepository.findListByParentId(request.getTopicId()))
                 .thenReturn(new HashSet<>());
 
         OperationResponse actualResponse = topicService.deleteTopic(request);

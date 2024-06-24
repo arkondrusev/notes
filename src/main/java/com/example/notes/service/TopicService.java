@@ -24,7 +24,7 @@ public class TopicService {
 
     public GetTopicTreeResponse getTopicTree() {
         Set<TopicWrapper> rootList = new HashSet<>();
-        topicRepository.findAllTopics().stream()
+        topicRepository.findAll().stream()
                 .filter(topic -> topic.getParentTopic() == null)
                 .forEach(topic-> rootList.add(Topic2TopicWrapperMapper.INSTANCE.topic2TopicWrapper(topic)));
 
@@ -36,25 +36,25 @@ public class TopicService {
 
         Topic parentTopic = null;
         if (request.getParentTopicId() != null) {
-            parentTopic = topicRepository.findTopicById(request.getParentTopicId())
+            parentTopic = topicRepository.findById(request.getParentTopicId())
                     .orElseThrow(()-> new RuntimeException(
                             String.format(PARENT_TOPIC_NOT_FOUND_MESSAGE, request.getParentTopicId())));
         }
 
         return Topic2CreateTopicResponseMapper.INSTANCE
-                .topic2CreateTopicResponse(topicRepository.createTopic(request.getTopicName(), parentTopic));
+                .topic2CreateTopicResponse(topicRepository.create(request.getTopicName(), parentTopic));
     }
 
     public OperationResponse updateTopic(@NonNull final UpdateTopicRequest request) {
         // todo check request params
 
-        Topic foundTopic = topicRepository.findTopicById(request.getTopicId())
+        Topic foundTopic = topicRepository.findById(request.getTopicId())
                 .orElseThrow(() -> new RuntimeException(
                         String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId())));
         foundTopic.setName(request.getTopicName());
         // parent topic update
         if (request.getParentTopicId() != null) {
-            Topic newParentTopic = topicRepository.findTopicById(request.getParentTopicId())
+            Topic newParentTopic = topicRepository.findById(request.getParentTopicId())
                     .orElseThrow(() -> new RuntimeException(
                             String.format(PARENT_TOPIC_NOT_FOUND_MESSAGE, request.getParentTopicId())));
             foundTopic.setParentTopic(newParentTopic);
@@ -68,13 +68,13 @@ public class TopicService {
     public OperationResponse deleteTopic(@NonNull final DeleteTopicRequest request) {
         //todo check "topicId" not empty
 
-        Topic foundTopic = topicRepository.findTopicById(request.getTopicId())
+        Topic foundTopic = topicRepository.findById(request.getTopicId())
                 .orElseThrow(() -> new RuntimeException(
                         String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId())));
-        topicRepository.findTopicsByParentId(request.getTopicId())
+        topicRepository.findListByParentId(request.getTopicId())
                 .forEach(t -> t.setParentTopic(null));
 
-        topicRepository.deleteTopic(foundTopic);
+        topicRepository.delete(foundTopic);
 
         return OperationResponse.ok();
     }

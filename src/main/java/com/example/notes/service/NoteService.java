@@ -44,7 +44,7 @@ public class NoteService {
         try {
             //todo check request params (name, topicId) exist
 
-            Topic topic = topicRepository.findTopicById(request.getTopicId())
+            Topic topic = topicRepository.findById(request.getTopicId())
                     .orElseThrow(() -> new RuntimeException(
                             String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId())));
             Set<Tag> tagListByIdList = tagRepository
@@ -75,7 +75,7 @@ public class NoteService {
         if (!(Objects.equals(request.getTopicId(), storedNote.getTopic() == null
                 ? null : storedNote.getTopic().getId()))) {
             if (Objects.nonNull(request.getTopicId())) {
-                storedNote.setTopic(topicRepository.findTopicById(request.getTopicId())
+                storedNote.setTopic(topicRepository.findById(request.getTopicId())
                         .orElseThrow(() -> new RuntimeException(
                                 String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId()))));
             } else {

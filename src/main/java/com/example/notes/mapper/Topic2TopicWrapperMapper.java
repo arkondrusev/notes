@@ -27,7 +27,7 @@ public abstract class Topic2TopicWrapperMapper {
 
     protected Set<TopicWrapper> getChildrenTopicWrapperList(Topic topic) {
         Set<TopicWrapper> childrenTopicList = new HashSet<>();
-        topicRepository.findTopicsByParentId(topic.getId())
+        topicRepository.findListByParentId(topic.getId())
                 .forEach(child -> childrenTopicList.add(topic2TopicWrapper(child)));
         return childrenTopicList;
     }
