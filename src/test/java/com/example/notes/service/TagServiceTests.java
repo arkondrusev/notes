@@ -40,8 +40,8 @@ public class TagServiceTests {
     void createTag_success() {
         CreateTagRequest request = new CreateTagRequest(expectedTagName1);
         OperationResponse expectedResponse = new CreateTagResponse(1, expectedTagName1);
-        when(tagRepository.createTag(expectedTagName1)).thenReturn(new Tag(1, expectedTagName1));
-        when(tagRepository.createTag(expectedTagName1)).thenReturn(new Tag(1, expectedTagName1));
+        when(tagRepository.create(expectedTagName1)).thenReturn(new Tag(1, expectedTagName1));
+        when(tagRepository.create(expectedTagName1)).thenReturn(new Tag(1, expectedTagName1));
 
         OperationResponse actualResponse = tagService.createTag(request);
 
@@ -52,7 +52,7 @@ public class TagServiceTests {
     void createTag_fail_duplicateTagException() {
         CreateTagRequest request = new CreateTagRequest(expectedTagName1);
         OperationResponse expectedResponse = OperationResponse.error(String.format(DUPLICATE_TAG_NAME_MESSAGE, expectedTagName1));
-        when(tagRepository.findTagByName(expectedTagName1))
+        when(tagRepository.findByName(expectedTagName1))
                 .thenReturn(Optional.of(new Tag(1, expectedTagName1)));
 
         OperationResponse actualResponse = tagService.createTag(request);
@@ -68,7 +68,7 @@ public class TagServiceTests {
         GetTagListResponse expectedResponse = new GetTagListResponse(Tag2TagWrapperMapper
                 .INSTANCE.tag2TagWrapperList(tagList));
 
-        when(tagRepository.findAllTags()).thenReturn(tagList);
+        when(tagRepository.findAll()).thenReturn(tagList);
 
         OperationResponse actualResponse = tagService.getTagList();
 
@@ -80,7 +80,7 @@ public class TagServiceTests {
         Tag tag = new Tag(1, expectedTagName1);
         UpdateTagRequest request = new UpdateTagRequest(1, expectedTagName1);
         OperationResponse expectedResponse = OperationResponse.ok();
-        when(tagRepository.findTagById(tag.getId())).thenReturn(Optional.of(tag));
+        when(tagRepository.findById(tag.getId())).thenReturn(Optional.of(tag));
 
         OperationResponse actualResponse = tagService.updateTag(request);
 
@@ -92,8 +92,8 @@ public class TagServiceTests {
         Tag tag = new Tag(1, expectedTagName1);
         UpdateTagRequest request = new UpdateTagRequest(1, expectedTagName1);
         OperationResponse expectedResponse = OperationResponse.error(String.format(DUPLICATE_TAG_NAME_MESSAGE, expectedTagName1));
-        when(tagRepository.findTagById(tag.getId())).thenReturn(Optional.of(tag));
-        when(tagRepository.findTagByName(expectedTagName1)).thenReturn(Optional.of(tag));
+        when(tagRepository.findById(tag.getId())).thenReturn(Optional.of(tag));
+        when(tagRepository.findByName(expectedTagName1)).thenReturn(Optional.of(tag));
 
         OperationResponse actualResponse = tagService.updateTag(request);
 
@@ -105,7 +105,7 @@ public class TagServiceTests {
         Tag tag = new Tag(1, expectedTagName1);
         DeleteTagRequest request = new DeleteTagRequest(tag.getId());
         OperationResponse expectedResponse = OperationResponse.ok();
-        when(tagRepository.findTagById(tag.getId())).thenReturn(Optional.of(tag));
+        when(tagRepository.findById(tag.getId())).thenReturn(Optional.of(tag));
 
         OperationResponse actualResponse = tagService.deleteTag(request);
 
@@ -117,7 +117,7 @@ public class TagServiceTests {
         Integer tagId = 1;
         DeleteTagRequest request = new DeleteTagRequest(tagId);
         OperationResponse expectedResponse = OperationResponse.error(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, tagId));
-        when(tagRepository.findTagById(tagId)).thenReturn(Optional.empty());
+        when(tagRepository.findById(tagId)).thenReturn(Optional.empty());
 
         OperationResponse actualResponse = tagService.deleteTag(request);
 

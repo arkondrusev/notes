@@ -48,7 +48,7 @@ public class NoteService {
                     .orElseThrow(() -> new RuntimeException(
                             String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId())));
             Set<Tag> tagListByIdList = tagRepository
-                    .findTagListByIdList(getTagIdListByTagWrapperList(request.getNoteTagList()));
+                    .findListByIdList(getTagIdListByTagWrapperList(request.getNoteTagList()));
             //todo check if found a Tag for every id in list, throw exception otherwise
             Note newNote = noteRepository.createNote(request.getNoteName(),
                     topic, request.getNoteContent(), tagListByIdList);
@@ -83,7 +83,7 @@ public class NoteService {
             }
         }
         Set<Tag> tagListByIdList = tagRepository
-                .findTagListByIdList(getTagIdListByTagWrapperList(request.getNoteTagList()));
+                .findListByIdList(getTagIdListByTagWrapperList(request.getNoteTagList()));
         //todo check if found a Tag for every id in list, throw exception otherwise
         storedNote.setTagList(tagListByIdList);
         storedNote.setContent(request.getNoteContent());

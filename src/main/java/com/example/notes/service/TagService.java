@@ -28,7 +28,7 @@ public class TagService {
             //todo check name is not null and not empty
             checkTagDuplicate(request.getTagName());
 
-            tag = tagRepository.createTag(request.getTagName());
+            tag = tagRepository.create(request.getTagName());
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());
         }
@@ -38,13 +38,13 @@ public class TagService {
 
     // check if tag with name "newTagName" already exists
     private void checkTagDuplicate(String newTagName) {
-        if (tagRepository.findTagByName(newTagName).isPresent()) {
+        if (tagRepository.findByName(newTagName).isPresent()) {
             throw new RuntimeException(String.format(DUPLICATE_TAG_NAME_MESSAGE, newTagName));
         }
     }
 
     public GetTagListResponse getTagList() {
-        Set<Tag> allTags = tagRepository.findAllTags();
+        Set<Tag> allTags = tagRepository.findAll();
         HashSet<TagWrapper> tagWrapperList = new HashSet<>();
         allTags.forEach(tag -> tagWrapperList.add(Tag2TagWrapperMapper.INSTANCE.tag2TagWrapper(tag)));
 
@@ -56,7 +56,7 @@ public class TagService {
             //todo check updatedTag id and name filled
             checkTagDuplicate(request.getTagName());
 
-            Tag foundTag = tagRepository.findTagById(request.getTagId())
+            Tag foundTag = tagRepository.findById(request.getTagId())
                     .orElseThrow(() -> new RuntimeException(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, request.getTagId())));
             foundTag.setName(request.getTagName());
         } catch (Throwable t) {
@@ -70,9 +70,9 @@ public class TagService {
         try {
             // todo check "tagId" is not null
 
-            Tag storedTag = tagRepository.findTagById(request.getTagId())
+            Tag storedTag = tagRepository.findById(request.getTagId())
                     .orElseThrow(() -> new RuntimeException(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, request.getTagId())));
-            tagRepository.deleteTag(storedTag);
+            tagRepository.delete(storedTag);
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());
         }
