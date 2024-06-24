@@ -33,7 +33,7 @@ public class NoteService {
 
     public GetNoteListResponse getNoteList() {
         Set<NoteWrapper> noteWrapperList = new HashSet<>();
-        noteRepository.findAllNotes().forEach(note -> {
+        noteRepository.findAll().forEach(note -> {
             noteWrapperList.add(Note2NoteWrapperMapper.INSTANCE.note2NoteWrapperMapper(note));
         });
 
@@ -50,7 +50,7 @@ public class NoteService {
             Set<Tag> tagListByIdList = tagRepository
                     .findListByIdList(getTagIdListByTagWrapperList(request.getNoteTagList()));
             //todo check if found a Tag for every id in list, throw exception otherwise
-            Note newNote = noteRepository.createNote(request.getNoteName(),
+            Note newNote = noteRepository.create(request.getNoteName(),
                     topic, request.getNoteContent(), tagListByIdList);
             return Note2CreateNoteResponseMapper.INSTANCE.note2CreateNoteResponse(newNote);
         } catch (Throwable t) {
@@ -68,7 +68,7 @@ public class NoteService {
     public OperationResponse updateNote(@NonNull UpdateNoteRequest request) {
         //todo check request params
 
-        Note storedNote = noteRepository.findNoteById(request.getNoteId())
+        Note storedNote = noteRepository.findById(request.getNoteId())
                 .orElseThrow(() -> new RuntimeException(
                         String.format(NOTE_NOT_FOUND_MESSAGE, request.getNoteId())));
         //update note's topic
@@ -95,7 +95,7 @@ public class NoteService {
     public OperationResponse deleteNote(@NonNull DeleteNoteRequest request) {
         try {
             // todo check request params
-            noteRepository.deleteNote(noteRepository.findNoteById(request.getNoteId())
+            noteRepository.delete(noteRepository.findById(request.getNoteId())
                     .orElseThrow(() -> new RuntimeException(String.format(NOTE_NOT_FOUND_MESSAGE, request.getNoteId()))));
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());

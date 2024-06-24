@@ -13,34 +13,34 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Repository
 public class NoteRepository {
 
-    private final Set<Note> noteSet = new HashSet<>();
-    private final AtomicInteger noteIdSequence = new AtomicInteger(0);
+    private final Set<Note> list = new HashSet<>();
+    private final AtomicInteger idSequence = new AtomicInteger(0);
 
-    public Optional<Note> findNoteById(Integer id) {
-        return noteSet.stream().filter(n -> n.getId().equals(id)).findFirst();
+    public Optional<Note> findById(Integer id) {
+        return list.stream().filter(n -> n.getId().equals(id)).findFirst();
     }
 
-    public Optional<Note> findNoteByName(String noteName) {
-        return noteSet.stream().filter(n -> n.getName().equals(noteName)).findFirst();
+    public Optional<Note> findByName(String name) {
+        return list.stream().filter(n -> n.getName().equals(name)).findFirst();
     }
 
-    public Optional<Note> findNoteByTopicId(Integer topicId) {
-        return noteSet.stream().filter(note -> note.getTopic().getId().equals(topicId)).findFirst();
+    public Optional<Note> findByTopicId(Integer topicId) {
+        return list.stream().filter(note -> note.getTopic().getId().equals(topicId)).findFirst();
     }
 
-    public Set<Note> findAllNotes() {
-        return noteSet;
+    public Set<Note> findAll() {
+        return list;
     }
 
-    public Note createNote(String noteName, Topic topic, String noteContent, Set<Tag> noteTagList) {
-        Note note = new Note(noteIdSequence.incrementAndGet(), noteName, topic, noteContent, noteTagList);
-        noteSet.add(note);
+    public Note create(String name, Topic topic, String content, Set<Tag> tagList) {
+        Note note = new Note(idSequence.incrementAndGet(), name, topic, content, tagList);
+        list.add(note);
 
         return note;
     }
 
-    public void deleteNote(Note note) {
-        noteSet.remove(note);
+    public void delete(Note note) {
+        list.remove(note);
     }
 
 }

@@ -57,7 +57,7 @@ public class NoteServiceTests {
         Set<Note> noteList = new HashSet<>();
         noteList.add(new Note(1, expectedNoteName1, topic1));
         noteList.add(new Note(2, expectedNoteName2, topic2));
-        when(noteRepository.findAllNotes()).thenReturn(noteList);
+        when(noteRepository.findAll()).thenReturn(noteList);
 
         GetNoteListResponse actualResponse = noteService.getNoteList();
 
@@ -71,7 +71,7 @@ public class NoteServiceTests {
         CreateNoteRequest request = new CreateNoteRequest(expectedNoteName1, topic1.getId());
         CreateNoteResponse expectedResponse = new CreateNoteResponse(1, expectedNoteName1);
         when(topicRepository.findById(topic1.getId())).thenReturn(Optional.of(topic1));
-        when(noteRepository.createNote(any(), any(), any(), any()))
+        when(noteRepository.create(any(), any(), any(), any()))
                 .thenReturn(note1);
 
         OperationResponse actualResponse = noteService.createNote(request);
@@ -85,7 +85,7 @@ public class NoteServiceTests {
         Note note1 = new Note(1, expectedNoteName1, topic1);
         UpdateNoteRequest request = new UpdateNoteRequest(note1.getId(), note1.getName(), note1.getTopic().getId());
         OperationResponse expectedResponse = OperationResponse.ok();
-        when(noteRepository.findNoteById(note1.getId())).thenReturn(Optional.of(note1));
+        when(noteRepository.findById(note1.getId())).thenReturn(Optional.of(note1));
 
         OperationResponse actualResponse = noteService.updateNote(request);
 
@@ -98,7 +98,7 @@ public class NoteServiceTests {
         Note note1 = new Note(1, expectedNoteName1, topic1);
         DeleteNoteRequest request = new DeleteNoteRequest(note1.getId());
         OperationResponse expectedResponse = OperationResponse.ok();
-        when(noteRepository.findNoteById(note1.getId())).thenReturn(Optional.of(note1));
+        when(noteRepository.findById(note1.getId())).thenReturn(Optional.of(note1));
 
         OperationResponse actualResponse = noteService.deleteNote(request);
 
