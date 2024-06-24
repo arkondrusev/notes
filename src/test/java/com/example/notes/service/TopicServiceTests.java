@@ -27,8 +27,6 @@ import static org.mockito.Mockito.when;
 public class TopicServiceTests {
 
     private final static String expectedTopicName1 = "Test Topic 1";
-    private final static String expectedTopicName2 = "Test Topic 2";
-    private final static String expectedTopicName3 = "Test Topic 3";
 
     @Autowired
     private TopicService topicService;

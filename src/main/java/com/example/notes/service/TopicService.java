@@ -26,9 +26,19 @@ public class TopicService {
         Set<TopicWrapper> rootList = new HashSet<>();
         topicRepository.findAll().stream()
                 .filter(topic -> topic.getParentTopic() == null)
-                .forEach(topic-> rootList.add(Topic2TopicWrapperMapper.INSTANCE.topic2TopicWrapper(topic)));
-
+                .forEach(topic-> rootList.add(getTopicWrapper(topic)));
         return new GetTopicTreeResponse(rootList);
+    }
+
+    private TopicWrapper getTopicWrapper(Topic topic) {
+        return Topic2TopicWrapperMapper.INSTANCE.topic2TopicWrapper(topic, getChildrenTopicWrapperList(topic));
+    }
+
+    private Set<TopicWrapper> getChildrenTopicWrapperList(Topic topic) {
+        Set<TopicWrapper> childrenTopicList = new HashSet<>();
+        topicRepository.findListByParentId(topic.getId())
+                .forEach(child -> childrenTopicList.add(getTopicWrapper(child)));
+        return childrenTopicList;
     }
 
     public CreateTopicResponse createTopic(@NonNull final CreateTopicRequest request) {
