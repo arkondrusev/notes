@@ -13,23 +13,23 @@ public class TopicController {
 
     private final TopicService topicService;
 
-    @PostMapping("createTopic")
+    @PostMapping("create")
     public CreateTopicResponse createTopic(@RequestBody CreateTopicRequest request) {
         return topicService.createTopic(request);
     }
 
     //todo implement possibility to get subtree using "topicId" as parameter
-    @GetMapping("getTopicTree")
+    @GetMapping("get-tree")
     public GetTopicTreeResponse getTopicTree() {
         return topicService.getTopicTree();
     }
 
-    @PutMapping("updateTopic")
+    @PutMapping("update")
     public OperationResponse updateTopic(@RequestBody UpdateTopicRequest request) {
         return topicService.updateTopic(request);
     }
 
-    @DeleteMapping("deleteTopic")
+    @DeleteMapping("delete")
     public OperationResponse deleteTopic(@RequestBody DeleteTopicRequest request) {
         return topicService.deleteTopic(request);
     }

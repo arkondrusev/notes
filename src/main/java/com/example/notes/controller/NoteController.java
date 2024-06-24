@@ -13,22 +13,22 @@ public class NoteController {
 
     private final NoteService noteService;
 
-    @PostMapping("createNote")
+    @PostMapping("create")
     public OperationResponse createNote(@RequestBody CreateNoteRequest request) {
         return noteService.createNote(request);
     }
 
-    @GetMapping("getNoteList")
+    @GetMapping("get-list")
     public GetNoteListResponse getNoteList() {
         return noteService.getNoteList();
     }
 
-    @PutMapping("updateNote")
+    @PutMapping("update")
     public OperationResponse updateNote(@RequestBody UpdateNoteRequest request) {
         return noteService.updateNote(request);
     }
 
-    @DeleteMapping("deleteNote")
+    @DeleteMapping("delete")
     public OperationResponse deleteNote(@RequestBody DeleteNoteRequest request) {
         return noteService.deleteNote(request);
     }

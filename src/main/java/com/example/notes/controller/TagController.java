@@ -13,22 +13,22 @@ public class TagController {
 
     private final TagService tagService;
 
-    @PostMapping("createTag")
+    @PostMapping("create")
     public OperationResponse createTag(@RequestBody CreateTagRequest request) {
         return tagService.createTag(request);
     }
 
-    @GetMapping("getTagList")
+    @GetMapping("get-list")
     public GetTagListResponse getTagList() {
         return tagService.getTagList();
     }
 
-    @PutMapping("updateTag")
+    @PutMapping("update")
     public OperationResponse updateTag(@RequestBody UpdateTagRequest request) {
         return tagService.updateTag(request);
     }
 
-    @DeleteMapping("deleteTag")
+    @DeleteMapping("delete")
     public OperationResponse deleteTag(@RequestBody DeleteTagRequest request) {
         return tagService.deleteTag(request);
     }
