@@ -46,10 +46,8 @@ public class TagRepository {
 
     public Tag create(String name) {
         Tag tag = new Tag(name);
-
         sessionFactory.getCurrentSession().persist(tag);
         //todo handle "duplicate tag" db error
-
         return tag;
     }
 

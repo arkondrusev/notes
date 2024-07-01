@@ -1,51 +1,58 @@
 package com.example.notes.repository;
 
 import com.example.notes.model.Topic;
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Repository
+@AllArgsConstructor
+@Transactional
 public class TopicRepository {
 
-    private final Set<Topic> list = new HashSet<>();
-    private final AtomicInteger idSequence = new AtomicInteger(0);
+    private SessionFactory sessionFactory;
 
     public Optional<Topic> findById(Integer topicId) {
-        return list.stream()
-                .filter(topic -> topic.getId().equals(topicId))
-                .findFirst();
+        return sessionFactory.getCurrentSession()
+                .createQuery("select t from Topic t where t.id = :topicId", Topic.class)
+                .setParameter("topicId", topicId).stream().findFirst();
     }
 
     public Optional<Topic> findByName(String name) {
-        return list.stream()
-                .filter(topic -> topic.getName().equals(name)).findFirst();
+        return sessionFactory.getCurrentSession()
+                .createQuery("select t from Topic t where t.name = :name", Topic.class)
+                .setParameter("name", name)
+                .getResultList().stream().findFirst();
     }
 
     public Set<Topic> findListByParentId(Integer parentId) {
-        return list.stream()
-                .filter(topic -> topic.getParentTopic() != null
-                        && topic.getParentTopic().getId().equals(parentId))
-                .collect(Collectors.toSet());
+        return sessionFactory.getCurrentSession()
+                .createQuery("select t from Topic t where t.parentTopic.id= :parentId", Topic.class)
+                .setParameter("parentId", parentId)
+                .getResultStream().collect(Collectors.toSet());
     }
 
     public Set<Topic> findAll() {
-        return list;
+        return sessionFactory.getCurrentSession()
+                .createQuery("select t from Topic t", Topic.class).getResultStream().collect(Collectors.toSet());
     }
 
     public Topic create(String name, Topic parent) {
-        Topic newTopic = new Topic(idSequence.incrementAndGet(), name, parent);
-        list.add(newTopic);
-
+        Topic newTopic = new Topic(null, name, parent);
+        sessionFactory.getCurrentSession().persist(newTopic);
+        //todo handle "duplicate tag" db error
         return newTopic;
     }
 
     public void delete(Topic topic) {
-        list.remove(topic);
+        Session session = sessionFactory.getCurrentSession();
+        session.remove(session.get(Topic.class, topic.getId()));
     }
 
 }

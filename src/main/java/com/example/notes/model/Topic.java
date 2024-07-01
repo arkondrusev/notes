@@ -23,13 +23,13 @@ public class Topic {
     @JoinColumn(name = "parent_id")
     private Topic parentTopic;
 
-    public Topic(@NonNull Integer topicId, @NonNull String topicName, Topic parentTopic) {
+    public Topic(Integer topicId, @NonNull String topicName, Topic parentTopic) {
         this.id = topicId;
         this.name = topicName;
         this.parentTopic = parentTopic;
     }
 
-    public Topic(@NonNull Integer topicId, @NonNull String topicName) {
+    public Topic(Integer topicId, @NonNull String topicName) {
         this(topicId, topicName, null);
     }
 
