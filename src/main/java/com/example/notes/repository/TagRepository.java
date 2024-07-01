@@ -53,6 +53,8 @@ public class TagRepository {
         return tag;
     }
 
+    //todo implement "save" method, use it in service
+
     public void delete(Tag tag) {
         Session session = sessionFactory.getCurrentSession();
         Tag tagForDelete = session.get(Tag.class, tag.getId());
