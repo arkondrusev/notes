@@ -1,19 +1,23 @@
 package com.example.notes.repository;
 
 import com.example.notes.model.Tag;
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Repository
+@AllArgsConstructor
+@Transactional
 public class TagRepository {
 
-    private final Set<Tag> list = new HashSet<>();
-    private final AtomicInteger idSequence = new AtomicInteger(0);
+    private SessionFactory sessionFactory;
 
     public Optional<Tag> findById(Integer id) {
         HashSet<Integer> set = new HashSet<>();
@@ -22,26 +26,37 @@ public class TagRepository {
     }
 
     public Set<Tag> findListByIdList(Set<Integer> idList) {
-        return list.stream().filter((n)->idList.contains(n.getId())).collect(Collectors.toSet());
+        return sessionFactory.getCurrentSession()
+                .createQuery("select t from Tag t where t.id in (:idList)", Tag.class)
+                .setParameter("idList", idList)
+                .getResultStream().collect(Collectors.toSet());
     }
 
     public Optional<Tag> findByName(String name) {
-        return list.stream().filter(n -> n.getName().equals(name)).findFirst();
+        return sessionFactory.getCurrentSession()
+                .createQuery("select t from Tag t where t.name = :name", Tag.class)
+                .setParameter("name", name)
+                .getResultList().stream().findFirst();
     }
 
     public Set<Tag> findAll() {
-        return list;
+        return sessionFactory.getCurrentSession()
+                .createQuery("select t from Tag t", Tag.class).getResultStream().collect(Collectors.toSet());
     }
 
     public Tag create(String name) {
-        Tag tag = new Tag(idSequence.incrementAndGet(), name);
-        list.add(tag);
+        Tag tag = new Tag(name);
+
+        sessionFactory.getCurrentSession().persist(tag);
+        //todo handle "duplicate tag" db error
 
         return tag;
     }
 
     public void delete(Tag tag) {
-        list.remove(tag);
+        Session session = sessionFactory.getCurrentSession();
+        Tag tagForDelete = session.get(Tag.class, tag.getId());
+        session.remove(tagForDelete);
     }
 
 }
