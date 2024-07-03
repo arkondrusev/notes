@@ -50,6 +50,12 @@ public class TopicRepository {
         return newTopic;
     }
 
+    public void update(Topic newTopic) {
+        Topic topic = sessionFactory.getCurrentSession().get(Topic.class, newTopic.getId());
+        topic.setName(newTopic.getName());
+        topic.setParentTopic(newTopic.getParentTopic());
+    }
+
     public void delete(Topic topic) {
         Session session = sessionFactory.getCurrentSession();
         session.remove(session.get(Topic.class, topic.getId()));

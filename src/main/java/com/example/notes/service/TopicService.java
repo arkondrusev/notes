@@ -4,6 +4,7 @@ import com.example.notes.dto.OperationResponse;
 import com.example.notes.dto.topic.*;
 import com.example.notes.mapper.Topic2CreateTopicResponseMapper;
 import com.example.notes.mapper.Topic2TopicWrapperMapper;
+import com.example.notes.mapper.UpdateTopicRequest2TopicMapper;
 import com.example.notes.model.Topic;
 import com.example.notes.repository.TopicRepository;
 import lombok.NonNull;
@@ -57,20 +58,14 @@ public class TopicService {
 
     public OperationResponse updateTopic(@NonNull final UpdateTopicRequest request) {
         // todo check request params
-
-        Topic foundTopic = topicRepository.findById(request.getTopicId())
-                .orElseThrow(() -> new RuntimeException(
-                        String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId())));
-        foundTopic.setName(request.getTopicName());
-        // parent topic update
+        Topic newParentTopic = null;
         if (request.getParentTopicId() != null) {
-            Topic newParentTopic = topicRepository.findById(request.getParentTopicId())
-                    .orElseThrow(() -> new RuntimeException(
-                            String.format(PARENT_TOPIC_NOT_FOUND_MESSAGE, request.getParentTopicId())));
-            foundTopic.setParentTopic(newParentTopic);
-        } else {
-            foundTopic.setParentTopic(null);
+            newParentTopic = topicRepository.findById(request.getParentTopicId())
+                        .orElseThrow(() -> new RuntimeException(
+                                String.format(PARENT_TOPIC_NOT_FOUND_MESSAGE, request.getParentTopicId())));
         }
+        Topic newTopic = UpdateTopicRequest2TopicMapper.INSTANCE.UpdateTopicRequest2Topic(request, newParentTopic);
+        topicRepository.update(newTopic);
 
         return OperationResponse.ok();
     }
