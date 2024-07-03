@@ -1,6 +1,7 @@
 package com.example.notes.repository;
 
 import com.example.notes.model.Tag;
+import com.example.notes.service.TagService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.hibernate.Session;
@@ -51,7 +52,13 @@ public class TagRepository {
         return tag;
     }
 
-    //todo implement "save" method, use it in service
+    public void update(Tag newTag) {
+        Tag tag = sessionFactory.getCurrentSession().get(Tag.class, newTag.getId());
+        if (tag == null) {
+            throw new RuntimeException(String.format(TagService.NOT_FOUND_TAG_BY_ID_MESSAGE, newTag.getId()));
+        }
+        tag.setName(newTag.getName());
+    }
 
     public void delete(Tag tag) {
         Session session = sessionFactory.getCurrentSession();

@@ -4,6 +4,7 @@ import com.example.notes.dto.OperationResponse;
 import com.example.notes.dto.tag.*;
 import com.example.notes.mapper.Tag2CreateTagResponseMapper;
 import com.example.notes.mapper.Tag2TagWrapperMapper;
+import com.example.notes.mapper.UpdateTagRequest2TagMapper;
 import com.example.notes.model.Tag;
 import com.example.notes.repository.TagRepository;
 import lombok.NonNull;
@@ -54,11 +55,7 @@ public class TagService {
     public OperationResponse updateTag(@NonNull UpdateTagRequest request) {
         try {
             //todo check updatedTag id and name filled
-            checkTagDuplicate(request.getTagName());
-
-            Tag foundTag = tagRepository.findById(request.getTagId())
-                    .orElseThrow(() -> new RuntimeException(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, request.getTagId())));
-            foundTag.setName(request.getTagName());
+            tagRepository.update(UpdateTagRequest2TagMapper.INSTANCE.UpdateTagRequest2Tag(request));
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());
         }
