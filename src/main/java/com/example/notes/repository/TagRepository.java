@@ -1,7 +1,6 @@
 package com.example.notes.repository;
 
 import com.example.notes.model.Tag;
-import com.example.notes.service.TagService;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.hibernate.Session;
@@ -50,12 +49,14 @@ public class TagRepository {
         return newTag;
     }
 
-    public void update(Tag newTag) {
-        Tag tag = sessionFactory.getCurrentSession().get(Tag.class, newTag.getId());
-        if (tag == null) {
-            throw new RuntimeException(String.format(TagService.NOT_FOUND_TAG_BY_ID_MESSAGE, newTag.getId()));
+    public boolean update(Tag newTag) {
+        Session session = sessionFactory.getCurrentSession();
+        Tag storedTag = session.get(Tag.class, newTag.getId());
+        if (storedTag == null) {
+            return false;
         }
-        tag.setName(newTag.getName());
+        session.merge(newTag);
+        return true;
     }
 
     public boolean delete(Integer tagId) {

@@ -47,6 +47,15 @@ public class TagService {
         }
     }
 
+    private void checkUpdateTagRequestParams(@NonNull UpdateTagRequest request) {
+        if (request.getTagId() == null) {
+            throw new IllegalArgumentException(TAG_ID_IS_EMPTY_MESSAGE);
+        }
+        if (request.getTagName() == null || request.getTagName().isEmpty()) {
+            throw new IllegalArgumentException(TAG_NAME_IS_EMPTY_MESSAGE);
+        }
+    }
+
     private void checkDeleteTagRequestParams(@NonNull DeleteTagRequest request) {
         if (request.getTagId() == null) {
             throw new IllegalArgumentException(TAG_ID_IS_EMPTY_MESSAGE);
@@ -63,8 +72,10 @@ public class TagService {
 
     public OperationResponse updateTag(@NonNull UpdateTagRequest request) {
         try {
-            //todo check updatedTag id and name filled
-            tagRepository.update(UpdateTagRequest2TagMapper.INSTANCE.UpdateTagRequest2Tag(request));
+            checkUpdateTagRequestParams(request);
+            if (!tagRepository.update(UpdateTagRequest2TagMapper.INSTANCE.UpdateTagRequest2Tag(request))) {
+                throw new RuntimeException(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, request.getTagId()));
+            }
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());
         }
