@@ -20,6 +20,7 @@ public class Tag {
     @EqualsAndHashCode.Include
     private Integer id;
     @NonNull
+    @Column(unique=true)
     private String name;
 
 }
