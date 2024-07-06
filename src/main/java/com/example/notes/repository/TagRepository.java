@@ -45,11 +45,9 @@ public class TagRepository {
                 .createQuery("select t from Tag t", Tag.class).getResultStream().collect(Collectors.toSet());
     }
 
-    public Tag create(String name) {
-        Tag tag = new Tag(name);
-        sessionFactory.getCurrentSession().persist(tag);
-        //todo handle "duplicate tag" db error
-        return tag;
+    public Tag create(Tag newTag) {
+        sessionFactory.getCurrentSession().persist(newTag);
+        return newTag;
     }
 
     public void update(Tag newTag) {
@@ -60,10 +58,14 @@ public class TagRepository {
         tag.setName(newTag.getName());
     }
 
-    public void delete(Tag tag) {
+    public boolean delete(Integer tagId) {
         Session session = sessionFactory.getCurrentSession();
-        Tag tagForDelete = session.get(Tag.class, tag.getId());
+        Tag tagForDelete = session.get(Tag.class, tagId);
+        if (tagForDelete == null) {
+            return false;
+        }
         session.remove(tagForDelete);
+        return true;
     }
 
 }
