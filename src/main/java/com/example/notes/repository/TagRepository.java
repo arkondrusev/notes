@@ -3,6 +3,7 @@ package com.example.notes.repository;
 import com.example.notes.model.Tag;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.hibernate.LockMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
@@ -51,7 +52,7 @@ public class TagRepository {
 
     public boolean update(Tag newTag) {
         Session session = sessionFactory.getCurrentSession();
-        Tag storedTag = session.get(Tag.class, newTag.getId());
+        Tag storedTag = session.get(Tag.class, newTag.getId(), LockMode.PESSIMISTIC_READ);
         if (storedTag == null) {
             return false;
         }

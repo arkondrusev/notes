@@ -76,6 +76,8 @@ public class TagService {
             if (!tagRepository.update(UpdateTagRequest2TagMapper.INSTANCE.UpdateTagRequest2Tag(request))) {
                 throw new RuntimeException(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, request.getTagId()));
             }
+        } catch (DataIntegrityViolationException e) {
+            return OperationResponse.error(String.format(DUPLICATE_TAG_NAME_MESSAGE, request.getTagName()));
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());
         }
