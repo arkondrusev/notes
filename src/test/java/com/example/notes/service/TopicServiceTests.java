@@ -35,15 +35,20 @@ public class TopicServiceTests {
     private TopicRepository topicRepository;
 
     @Test
-    void createTopic_success() {
+    void createTopic__success() {
         CreateTopicRequest request = new CreateTopicRequest(expectedTopicName1, null);
         CreateTopicResponse expectedResponse = new CreateTopicResponse(1, expectedTopicName1, null);
-        when(topicRepository.create(expectedTopicName1, null))
+       /* when(topicRepository.create(expectedTopicName1, null))
                 .thenReturn(new Topic(1, expectedTopicName1, null));
-
+*/
         OperationResponse actualResponse = topicService.createTopic(request);
 
         assertEquals(expectedResponse, actualResponse);
+    }
+
+    @Test
+    void createTopic__some_exception_on_db() {
+
     }
 
     @Test
@@ -73,7 +78,7 @@ public class TopicServiceTests {
     }
 
     @Test
-    void updateTopic_success() {
+    void updateTopic__success() {
         UpdateTopicRequest request = new UpdateTopicRequest(1, expectedTopicName1, null);
         OperationResponse expectedResponse = OperationResponse.ok();
         when(topicRepository.findById(request.getTopicId()))
@@ -85,7 +90,12 @@ public class TopicServiceTests {
     }
 
     @Test
-    void deleteTopic_success() {
+    void updateTopic__topic_not_found() {
+
+    }
+
+    @Test
+    void deleteTopic__success() {
         DeleteTopicRequest request = new DeleteTopicRequest(1);
         OperationResponse expectedResponse = OperationResponse.ok();
         when(topicRepository.findById(request.getTopicId()))
@@ -96,6 +106,11 @@ public class TopicServiceTests {
         OperationResponse actualResponse = topicService.deleteTopic(request);
 
         assertEquals(expectedResponse, actualResponse);
+    }
+
+    @Test
+    void deleteTopic__topic_not_found() {
+
     }
 
 }

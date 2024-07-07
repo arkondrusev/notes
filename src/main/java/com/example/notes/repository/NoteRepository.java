@@ -1,10 +1,9 @@
 package com.example.notes.repository;
 
 import com.example.notes.model.Note;
-import com.example.notes.model.Tag;
-import com.example.notes.model.Topic;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.hibernate.LockMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
@@ -42,19 +41,33 @@ public class NoteRepository {
 
     public Set<Note> findAll() {
         return sessionFactory.getCurrentSession()
-                .createQuery("select n from Note n", Note.class).getResultStream().collect(Collectors.toSet());
+                .createQuery("select n from Note n", Note.class)
+                .getResultStream().collect(Collectors.toSet());
     }
 
-    public Note create(String name, Topic topic, String content, Set<Tag> tagList) {
-        Note note = new Note(null, name, topic, content, tagList);
-        sessionFactory.getCurrentSession().persist(note);
-        return note;
+    public Note create(Note newNote) {
+        sessionFactory.getCurrentSession().persist(newNote);
+        return newNote;
     }
 
-    public void delete(Note note) {
+    public boolean update(Note newNote) {
         Session session = sessionFactory.getCurrentSession();
-        Note noteForDelete = session.get(Note.class, note.getId());
+        Note storedNote = session.get(Note.class, newNote.getId(), LockMode.PESSIMISTIC_READ);
+        if (storedNote == null) {
+            return false;
+        }
+        session.merge(newNote);
+        return true;
+    }
+
+    public boolean delete(Integer noteId) {
+        Session session = sessionFactory.getCurrentSession();
+        Note noteForDelete = session.get(Note.class, noteId);
+        if (noteForDelete == null) {
+            return false;
+        }
         session.remove(noteForDelete);
+        return true;
     }
 
 }

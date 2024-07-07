@@ -20,7 +20,6 @@ public class Note {
     @SequenceGenerator(name="note_id_seq", sequenceName="note_id_seq", allocationSize=1)
     @Column(name = "id", updatable=false)
     @EqualsAndHashCode.Include
-    @NonNull
     private Integer id;
     @NonNull
     private String name;
