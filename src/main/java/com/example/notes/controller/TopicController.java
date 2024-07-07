@@ -14,7 +14,7 @@ public class TopicController {
     private final TopicService topicService;
 
     @PostMapping("create")
-    public CreateTopicResponse createTopic(@RequestBody CreateTopicRequest request) {
+    public OperationResponse createTopic(@RequestBody CreateTopicRequest request) {
         return topicService.createTopic(request);
     }
 

@@ -33,4 +33,6 @@ public class Topic {
         this(topicId, topicName, null);
     }
 
+    //todo prohibit topic deletion if it has children entities (topics or notes) (PreRemove)
+
 }

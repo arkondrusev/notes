@@ -3,6 +3,7 @@ package com.example.notes.repository;
 import com.example.notes.model.Topic;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.hibernate.LockMode;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
@@ -43,22 +44,29 @@ public class TopicRepository {
                 .createQuery("select t from Topic t", Topic.class).getResultStream().collect(Collectors.toSet());
     }
 
-    public Topic create(String name, Topic parent) {
-        Topic newTopic = new Topic(null, name, parent);
+    public Topic create(Topic newTopic) {
         sessionFactory.getCurrentSession().persist(newTopic);
-        //todo handle "duplicate tag" db error
         return newTopic;
     }
 
-    public void update(Topic newTopic) {
-        Topic topic = sessionFactory.getCurrentSession().get(Topic.class, newTopic.getId());
-        topic.setName(newTopic.getName());
-        topic.setParentTopic(newTopic.getParentTopic());
+    public boolean update(Topic newTopic) {
+        Session session = sessionFactory.getCurrentSession();
+        Topic storedTopic = session.get(Topic.class, newTopic.getId(), LockMode.PESSIMISTIC_READ);
+        if (storedTopic == null) {
+            return false;
+        }
+        session.merge(newTopic);
+        return true;
     }
 
-    public void delete(Topic topic) {
+    public boolean delete(Integer topicId) {
         Session session = sessionFactory.getCurrentSession();
-        session.remove(session.get(Topic.class, topic.getId()));
+        Topic topicForDelete = session.get(Topic.class, topicId);
+        if (topicForDelete == null) {
+            return false;
+        }
+        session.remove(topicForDelete);
+        return true;
     }
 
 }
