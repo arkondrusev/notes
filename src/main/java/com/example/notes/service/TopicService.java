@@ -25,7 +25,7 @@ public class TopicService {
 
     private final TopicRepository topicRepository;
 
-    public GetTopicTreeResponse getTopicTree() {
+    public OperationResponse getTopicTree() {
         Set<TopicWrapper> rootList = new HashSet<>();
         topicRepository.findAll().stream()
                 .filter(topic -> topic.getParentTopic() == null)
