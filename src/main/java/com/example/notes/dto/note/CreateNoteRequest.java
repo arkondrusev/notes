@@ -1,12 +1,16 @@
 package com.example.notes.dto.note;
 
 import com.example.notes.dto.tag.TagWrapper;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class CreateNoteRequest {
 
     private String noteName;

@@ -1,11 +1,10 @@
 package com.example.notes.service;
 
 import com.example.notes.dto.OperationResponse;
-import com.example.notes.dto.note.DeleteNoteRequest;
-import com.example.notes.dto.note.GetNoteListResponse;
-import com.example.notes.dto.note.NoteWrapper;
-import com.example.notes.dto.note.UpdateNoteRequest;
+import com.example.notes.dto.note.*;
+import com.example.notes.dto.tag.TagWrapper;
 import com.example.notes.model.Note;
+import com.example.notes.model.Tag;
 import com.example.notes.model.Topic;
 import com.example.notes.repository.NoteRepository;
 import com.example.notes.repository.TagRepository;
@@ -22,6 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
@@ -68,45 +68,49 @@ public class NoteServiceTests {
 
     @Test
     void createNote_success() {
-        /*Topic topic1 = new Topic(1,"Test Topic 1");
-        Note note1 = new Note(1, expectedNoteName1, topic1);
-       // CreateNoteRequest request = new CreateNoteRequest(expectedNoteName1, topic1.getId());
-        CreateNoteResponse expectedResponse = new CreateNoteResponse(1, expectedNoteName1);
+        Integer noteId = 1;
+        Set<Tag> tagList = new HashSet<>();
+        tagList.add(new Tag(1, "Test Tag 1"));
+        Set<TagWrapper> tagWrapperList = new HashSet<>();
+        tagWrapperList.add(new TagWrapper(1, "Test Tag 1"));
+        Topic topic1 = new Topic(1, "Test Topic 1");
+        Note note1 = new Note(noteId, "Test Topic 1",
+                topic1, "Test Note Content 1", tagList);
+        CreateNoteRequest request = new CreateNoteRequest(note1.getName(),
+                note1.getTopic().getId(), note1.getContent(), tagWrapperList);
+        when(tagRepository.findListByIdList(any())).thenReturn(tagList);
         when(topicRepository.findById(topic1.getId())).thenReturn(Optional.of(topic1));
-        when(noteRepository.create(any(), any(), any(), any()))
-                .thenReturn(note1);
+        when(noteRepository.create(new Note(null, "Test Topic 1",
+                topic1, "Test Note Content 1", tagList))).thenReturn(note1);
 
-        OperationResponse actualResponse = noteService.createNote(request);
-
-        assertEquals(expectedResponse, actualResponse);
-
-         */
+        assertEquals(new CreateNoteResponse(note1.getId(), note1.getName()), noteService.createNote(request));
     }
 
     @Test
     void updateNote_success() {
-        Topic topic1 = new Topic(1,"Test Topic 1");
-        Note note1 = new Note(1, expectedNoteName1, topic1);
-        UpdateNoteRequest request = new UpdateNoteRequest(note1.getId(), note1.getName(), note1.getTopic().getId());
-        OperationResponse expectedResponse = OperationResponse.ok();
-        when(noteRepository.findById(note1.getId())).thenReturn(Optional.of(note1));
+        Integer noteId = 1;
+        Set<Tag> tagList = new HashSet<>();
+        tagList.add(new Tag(1, "Test Tag 1"));
+        Set<TagWrapper> tagWrapperList = new HashSet<>();
+        tagWrapperList.add(new TagWrapper(1, "Test Tag 1"));
+        Topic topic1 = new Topic(1, "Test Topic 1");
+        Note note1 = new Note(noteId, "Test Topic 1",
+                topic1, "Test Note Content 1", tagList);
+        UpdateNoteRequest request = new UpdateNoteRequest(note1.getId(), note1.getName(),
+                note1.getTopic().getId(), note1.getContent(), tagWrapperList);
+        when(tagRepository.findListByIdList(any())).thenReturn(tagList);
+        when(topicRepository.findById(topic1.getId())).thenReturn(Optional.of(topic1));
+        when(noteRepository.update(note1)).thenReturn(Boolean.TRUE);
 
-        OperationResponse actualResponse = noteService.updateNote(request);
-
-        assertEquals(expectedResponse, actualResponse);
+        assertEquals(OperationResponse.ok(), noteService.updateNote(request));
     }
 
     @Test
     void deleteNote_success() {
-        Topic topic1 = new Topic(1,"Test Topic 1");
-        Note note1 = new Note(1, expectedNoteName1, topic1);
-        DeleteNoteRequest request = new DeleteNoteRequest(note1.getId());
-        OperationResponse expectedResponse = OperationResponse.ok();
-        when(noteRepository.findById(note1.getId())).thenReturn(Optional.of(note1));
+        Integer noteId = 1;
+        when(noteRepository.delete(noteId)).thenReturn(Boolean.TRUE);
 
-        OperationResponse actualResponse = noteService.deleteNote(request);
-
-        assertEquals(expectedResponse, actualResponse);
+        assertEquals(OperationResponse.ok(), noteService.deleteNote(new DeleteNoteRequest(noteId)));
     }
 
 }
