@@ -74,11 +74,12 @@ public class NoteService {
         Note newNote;
         try {
             checkCreateNoteRequestParams(request);
-
-            Set<Integer> requestTagIdList = getTagIdListByTagWrapperList(request.getNoteTagList());
-            Set<Tag> tagList = tagRepository.findListByIdList(requestTagIdList);
-            checkTagListFound(requestTagIdList, tagList);
-
+            Set<Tag> tagList = new HashSet<>();
+            if (!request.getNoteTagList().isEmpty()) {
+                Set<Integer> requestTagIdList = getTagIdListByTagWrapperList(request.getNoteTagList());
+                tagList = tagRepository.findListByIdList(requestTagIdList);
+                checkTagListFound(requestTagIdList, tagList);
+            }
             newNote = new Note(null, request.getNoteName(), findTopicOrThrow(request.getTopicId()),
                     request.getNoteContent(), tagList);
             newNote = noteRepository.create(newNote);
@@ -110,11 +111,12 @@ public class NoteService {
     public OperationResponse updateNote(@NonNull UpdateNoteRequest request) {
         try {
             checkUpdateNoteRequestParams(request);
-
-            Set<Integer> requestTagIdList = getTagIdListByTagWrapperList(request.getNoteTagList());
-            Set<Tag> tagList = tagRepository.findListByIdList(requestTagIdList);
-            checkTagListFound(requestTagIdList, tagList);
-
+            Set<Tag> tagList = new HashSet<>();
+            if (!request.getNoteTagList().isEmpty()) {
+                Set<Integer> requestTagIdList = getTagIdListByTagWrapperList(request.getNoteTagList());
+                tagList = tagRepository.findListByIdList(requestTagIdList);
+                checkTagListFound(requestTagIdList, tagList);
+            }
             if (!noteRepository.update(new Note(request.getNoteId(), request.getNoteName(),
                     findTopicOrThrow(request.getTopicId()), request.getNoteContent(), tagList))) {
                 throw new RuntimeException(String.format(NOTE_NOT_FOUND_MESSAGE, request.getNoteId()));
