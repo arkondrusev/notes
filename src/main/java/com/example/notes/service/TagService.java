@@ -21,7 +21,7 @@ import java.util.Set;
 public class TagService {
 
     public static final String DUPLICATE_TAG_NAME_MESSAGE = "Duplicate tag name: %s";
-    public static final String NOT_FOUND_TAG_BY_ID_MESSAGE = "Tag not found. id=%s";
+    public static final String TAG_NOT_FOUND_BY_ID_MESSAGE = "Tag not found. id=%s";
     public static final String TAG_NAME_IS_EMPTY_MESSAGE = "Tag name is empty";
     public static final String TAG_ID_IS_EMPTY_MESSAGE = "Tag id is empty";
 
@@ -74,7 +74,7 @@ public class TagService {
         try {
             checkUpdateTagRequestParams(request);
             if (!tagRepository.update(UpdateTagRequest2TagMapper.INSTANCE.UpdateTagRequest2Tag(request))) {
-                throw new RuntimeException(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, request.getTagId()));
+                throw new RuntimeException(String.format(TAG_NOT_FOUND_BY_ID_MESSAGE, request.getTagId()));
             }
         } catch (DataIntegrityViolationException e) {
             return OperationResponse.error(String.format(DUPLICATE_TAG_NAME_MESSAGE, request.getTagName()));
@@ -89,7 +89,7 @@ public class TagService {
         try {
             checkDeleteTagRequestParams(request);
             if (!tagRepository.delete(request.getTagId())) {
-                return OperationResponse.error(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, request.getTagId()));
+                return OperationResponse.error(String.format(TAG_NOT_FOUND_BY_ID_MESSAGE, request.getTagId()));
             }
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());

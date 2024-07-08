@@ -92,10 +92,12 @@ public class TopicService {
                         .orElseThrow(() -> new RuntimeException(
                                 String.format(PARENT_TOPIC_NOT_FOUND_MESSAGE, request.getParentTopicId())));
             }
-            topicRepository.update(UpdateTopicRequest2TopicMapper.INSTANCE
-                    .UpdateTopicRequest2Topic(request, newParentTopic));
+            if (!topicRepository.update(UpdateTopicRequest2TopicMapper.INSTANCE
+                    .UpdateTopicRequest2Topic(request, newParentTopic))) {
+                throw new RuntimeException(String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId()));
+            }
         } catch (Throwable t) {
-            OperationResponse.error(t.getMessage());
+            return OperationResponse.error(t.getMessage());
         }
 
         return OperationResponse.ok();
@@ -104,7 +106,9 @@ public class TopicService {
     public OperationResponse deleteTopic(@NonNull final DeleteTopicRequest request) {
         try {
             checkDeleteTopicRequestParams(request);
-            topicRepository.delete(request.getTopicId());
+            if (!topicRepository.delete(request.getTopicId())) {
+                return OperationResponse.error(String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId()));
+            }
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());
         }

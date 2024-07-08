@@ -17,7 +17,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.example.notes.service.TagService.DUPLICATE_TAG_NAME_MESSAGE;
-import static com.example.notes.service.TagService.NOT_FOUND_TAG_BY_ID_MESSAGE;
+import static com.example.notes.service.TagService.TAG_NOT_FOUND_BY_ID_MESSAGE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
@@ -92,7 +92,7 @@ public class TagServiceTests {
     void updateTag_fail_notFoundTagException() {
         Integer tagId = 1;
         UpdateTagRequest request = new UpdateTagRequest(tagId, expectedTagName1);
-        OperationResponse expectedResponse = OperationResponse.error(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, tagId));
+        OperationResponse expectedResponse = OperationResponse.error(String.format(TAG_NOT_FOUND_BY_ID_MESSAGE, tagId));
         when(tagRepository.update(new Tag(tagId, expectedTagName1))).thenReturn(Boolean.FALSE);
 
         assertEquals(expectedResponse, tagService.updateTag(request));
@@ -111,7 +111,7 @@ public class TagServiceTests {
     void deleteTag_fail_tagNotFoundException() {
         Integer tagId = 1;
         DeleteTagRequest request = new DeleteTagRequest(tagId);
-        OperationResponse expectedResponse = OperationResponse.error(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, tagId));
+        OperationResponse expectedResponse = OperationResponse.error(String.format(TAG_NOT_FOUND_BY_ID_MESSAGE, tagId));
         when(tagRepository.delete(tagId)).thenReturn(Boolean.FALSE);
 
         assertEquals(expectedResponse, tagService.deleteTag(request));

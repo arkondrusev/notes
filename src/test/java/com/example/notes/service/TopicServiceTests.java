@@ -14,10 +14,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.HashSet;
-import java.util.Optional;
-
+import static com.example.notes.service.TopicService.TOPIC_NOT_FOUND_MESSAGE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
@@ -35,20 +34,20 @@ public class TopicServiceTests {
     private TopicRepository topicRepository;
 
     @Test
-    void createTopic__success() {
+    void createTopic_success() {
         CreateTopicRequest request = new CreateTopicRequest(expectedTopicName1, null);
         CreateTopicResponse expectedResponse = new CreateTopicResponse(1, expectedTopicName1, null);
-       /* when(topicRepository.create(expectedTopicName1, null))
-                .thenReturn(new Topic(1, expectedTopicName1, null));
-*/
-        OperationResponse actualResponse = topicService.createTopic(request);
+        when(topicRepository.create(any())).thenReturn(new Topic(1, expectedTopicName1, null));
 
-        assertEquals(expectedResponse, actualResponse);
+        assertEquals(expectedResponse, topicService.createTopic(request));
     }
 
     @Test
-    void createTopic__some_exception_on_db() {
+    void createTopic_fail__exceptionOnDB() {
+        CreateTopicRequest request = new CreateTopicRequest(expectedTopicName1, null);
+        when(topicRepository.create(any())).thenThrow(new RuntimeException("Test DB error"));
 
+        assertEquals(OperationResponse.error("Test DB error"), topicService.createTopic(request));
     }
 
     @Test
@@ -78,39 +77,39 @@ public class TopicServiceTests {
     }
 
     @Test
-    void updateTopic__success() {
+    void updateTopic_success() {
+        Topic topic = new Topic(1, expectedTopicName1, null);
         UpdateTopicRequest request = new UpdateTopicRequest(1, expectedTopicName1, null);
-        OperationResponse expectedResponse = OperationResponse.ok();
-        when(topicRepository.findById(request.getTopicId()))
-                .thenReturn(Optional.of(new Topic(1, expectedTopicName1, null)));
+        when(topicRepository.update(topic)).thenReturn(Boolean.TRUE);
 
-        OperationResponse actualResponse = topicService.updateTopic(request);
-
-        assertEquals(expectedResponse, actualResponse);
+        assertEquals(OperationResponse.ok(), topicService.updateTopic(request));
     }
 
     @Test
-    void updateTopic__topic_not_found() {
+    void updateTopic_fail__topicNotFoundException() {
+        Integer topicId = 1;
+        UpdateTopicRequest request = new UpdateTopicRequest(topicId, expectedTopicName1, null);
+        OperationResponse expectedResponse = OperationResponse.error(String.format(TOPIC_NOT_FOUND_MESSAGE, topicId));
+        when(topicRepository.update(new Topic(topicId, expectedTopicName1, null))).thenReturn(Boolean.FALSE);
 
+        assertEquals(expectedResponse, topicService.updateTopic(request));
     }
 
     @Test
-    void deleteTopic__success() {
+    void deleteTopic_success() {
         DeleteTopicRequest request = new DeleteTopicRequest(1);
-        OperationResponse expectedResponse = OperationResponse.ok();
-        when(topicRepository.findById(request.getTopicId()))
-                .thenReturn(Optional.of(new Topic(1, expectedTopicName1, null)));
-        when(topicRepository.findListByParentId(request.getTopicId()))
-                .thenReturn(new HashSet<>());
+        when(topicRepository.delete(request.getTopicId())).thenReturn(true);
 
-        OperationResponse actualResponse = topicService.deleteTopic(request);
-
-        assertEquals(expectedResponse, actualResponse);
+        assertEquals(OperationResponse.ok(), topicService.deleteTopic(request));
     }
 
     @Test
-    void deleteTopic__topic_not_found() {
+    void deleteTopic_fail__topicNotFoundException() {
+        DeleteTopicRequest request = new DeleteTopicRequest(1);
+        when(topicRepository.delete(request.getTopicId())).thenReturn(false);
 
+        assertEquals(OperationResponse.error(String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId())),
+                topicService.deleteTopic(request));
     }
 
 }
