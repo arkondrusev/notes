@@ -2,12 +2,15 @@ package com.example.notes.service;
 
 import com.example.notes.dto.OperationResponse;
 import com.example.notes.dto.tag.*;
+import com.example.notes.mapper.CreateTagRequest2TagMapper;
 import com.example.notes.mapper.Tag2CreateTagResponseMapper;
 import com.example.notes.mapper.Tag2TagWrapperMapper;
+import com.example.notes.mapper.UpdateTagRequest2TagMapper;
 import com.example.notes.model.Tag;
 import com.example.notes.repository.TagRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -18,17 +21,19 @@ import java.util.Set;
 public class TagService {
 
     public static final String DUPLICATE_TAG_NAME_MESSAGE = "Duplicate tag name: %s";
-    public static final String NOT_FOUND_TAG_BY_ID_MESSAGE = "Tag not found. id=%s";
+    public static final String TAG_NOT_FOUND_BY_ID_MESSAGE = "Tag not found. id=%s";
+    public static final String TAG_NAME_IS_EMPTY_MESSAGE = "Tag name is empty";
+    public static final String TAG_ID_IS_EMPTY_MESSAGE = "Tag id is empty";
 
     private final TagRepository tagRepository;
 
     public OperationResponse createTag(@NonNull CreateTagRequest request) {
         Tag tag;
         try {
-            //todo check name is not null and not empty
-            checkTagDuplicate(request.getTagName());
-
-            tag = tagRepository.create(request.getTagName());
+            checkCreateTagRequestParams(request);
+            tag = tagRepository.create(CreateTagRequest2TagMapper.INSTANCE.CreateTagRequest2Tag(request));
+        } catch (DataIntegrityViolationException e) {
+            return OperationResponse.error(String.format(DUPLICATE_TAG_NAME_MESSAGE, request.getTagName()));
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());
         }
@@ -36,10 +41,24 @@ public class TagService {
         return Tag2CreateTagResponseMapper.INSTANCE.tag2CreateTagResponse(tag);
     }
 
-    // check if tag with name "newTagName" already exists
-    private void checkTagDuplicate(String newTagName) {
-        if (tagRepository.findByName(newTagName).isPresent()) {
-            throw new RuntimeException(String.format(DUPLICATE_TAG_NAME_MESSAGE, newTagName));
+    private void checkCreateTagRequestParams(@NonNull CreateTagRequest request) {
+        if (request.getTagName() == null || request.getTagName().isEmpty()) {
+            throw new IllegalArgumentException(TAG_NAME_IS_EMPTY_MESSAGE);
+        }
+    }
+
+    private void checkUpdateTagRequestParams(@NonNull UpdateTagRequest request) {
+        if (request.getTagId() == null) {
+            throw new IllegalArgumentException(TAG_ID_IS_EMPTY_MESSAGE);
+        }
+        if (request.getTagName() == null || request.getTagName().isEmpty()) {
+            throw new IllegalArgumentException(TAG_NAME_IS_EMPTY_MESSAGE);
+        }
+    }
+
+    private void checkDeleteTagRequestParams(@NonNull DeleteTagRequest request) {
+        if (request.getTagId() == null) {
+            throw new IllegalArgumentException(TAG_ID_IS_EMPTY_MESSAGE);
         }
     }
 
@@ -53,12 +72,12 @@ public class TagService {
 
     public OperationResponse updateTag(@NonNull UpdateTagRequest request) {
         try {
-            //todo check updatedTag id and name filled
-            checkTagDuplicate(request.getTagName());
-
-            Tag foundTag = tagRepository.findById(request.getTagId())
-                    .orElseThrow(() -> new RuntimeException(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, request.getTagId())));
-            foundTag.setName(request.getTagName());
+            checkUpdateTagRequestParams(request);
+            if (!tagRepository.update(UpdateTagRequest2TagMapper.INSTANCE.UpdateTagRequest2Tag(request))) {
+                throw new RuntimeException(String.format(TAG_NOT_FOUND_BY_ID_MESSAGE, request.getTagId()));
+            }
+        } catch (DataIntegrityViolationException e) {
+            return OperationResponse.error(String.format(DUPLICATE_TAG_NAME_MESSAGE, request.getTagName()));
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());
         }
@@ -68,11 +87,10 @@ public class TagService {
 
     public OperationResponse deleteTag(@NonNull DeleteTagRequest request) {
         try {
-            // todo check "tagId" is not null
-
-            Tag storedTag = tagRepository.findById(request.getTagId())
-                    .orElseThrow(() -> new RuntimeException(String.format(NOT_FOUND_TAG_BY_ID_MESSAGE, request.getTagId())));
-            tagRepository.delete(storedTag);
+            checkDeleteTagRequestParams(request);
+            if (!tagRepository.delete(request.getTagId())) {
+                return OperationResponse.error(String.format(TAG_NOT_FOUND_BY_ID_MESSAGE, request.getTagId()));
+            }
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());
         }

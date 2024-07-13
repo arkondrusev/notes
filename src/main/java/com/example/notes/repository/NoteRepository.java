@@ -1,46 +1,73 @@
 package com.example.notes.repository;
 
 import com.example.notes.model.Note;
-import com.example.notes.model.Tag;
-import com.example.notes.model.Topic;
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import org.hibernate.LockMode;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Repository
+@AllArgsConstructor
+@Transactional
 public class NoteRepository {
 
-    private final Set<Note> list = new HashSet<>();
-    private final AtomicInteger idSequence = new AtomicInteger(0);
+    private SessionFactory sessionFactory;
 
     public Optional<Note> findById(Integer id) {
-        return list.stream().filter(n -> n.getId().equals(id)).findFirst();
+        return sessionFactory.getCurrentSession()
+                .createQuery("select n from Note n where n.id = :id", Note.class)
+                .setParameter("id", id).stream().findFirst();
     }
 
     public Optional<Note> findByName(String name) {
-        return list.stream().filter(n -> n.getName().equals(name)).findFirst();
+        return sessionFactory.getCurrentSession()
+                .createQuery("select n from Note n where n.name = :name", Note.class)
+                .setParameter("name", name)
+                .getResultList().stream().findFirst();
     }
 
     public Optional<Note> findByTopicId(Integer topicId) {
-        return list.stream().filter(note -> note.getTopic().getId().equals(topicId)).findFirst();
+        return sessionFactory.getCurrentSession()
+                .createQuery("select n from Note n where n.topic.id = :topicId", Note.class)
+                .setParameter("topicId", topicId)
+                .getResultList().stream().findFirst();
     }
 
     public Set<Note> findAll() {
-        return list;
+        return sessionFactory.getCurrentSession()
+                .createQuery("select n from Note n", Note.class)
+                .getResultStream().collect(Collectors.toSet());
     }
 
-    public Note create(String name, Topic topic, String content, Set<Tag> tagList) {
-        Note note = new Note(idSequence.incrementAndGet(), name, topic, content, tagList);
-        list.add(note);
-
-        return note;
+    public Note create(Note newNote) {
+        sessionFactory.getCurrentSession().persist(newNote);
+        return newNote;
     }
 
-    public void delete(Note note) {
-        list.remove(note);
+    public boolean update(Note newNote) {
+        Session session = sessionFactory.getCurrentSession();
+        Note storedNote = session.get(Note.class, newNote.getId(), LockMode.PESSIMISTIC_READ);
+        if (storedNote == null) {
+            return false;
+        }
+        session.merge(newNote);
+        return true;
+    }
+
+    public boolean delete(Integer noteId) {
+        Session session = sessionFactory.getCurrentSession();
+        Note noteForDelete = session.get(Note.class, noteId);
+        if (noteForDelete == null) {
+            return false;
+        }
+        session.remove(noteForDelete);
+        return true;
     }
 
 }

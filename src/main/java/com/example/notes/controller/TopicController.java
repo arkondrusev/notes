@@ -14,13 +14,13 @@ public class TopicController {
     private final TopicService topicService;
 
     @PostMapping("create")
-    public CreateTopicResponse createTopic(@RequestBody CreateTopicRequest request) {
+    public OperationResponse createTopic(@RequestBody CreateTopicRequest request) {
         return topicService.createTopic(request);
     }
 
     //todo implement possibility to get subtree using "topicId" as parameter
     @GetMapping("get-tree")
-    public GetTopicTreeResponse getTopicTree() {
+    public OperationResponse getTopicTree() {
         return topicService.getTopicTree();
     }
 
