@@ -6,7 +6,7 @@ import com.example.notes.mapper.Topic2CreateTopicResponseMapper;
 import com.example.notes.mapper.Topic2TopicWrapperMapper;
 import com.example.notes.mapper.UpdateTopicRequest2TopicMapper;
 import com.example.notes.model.Topic;
-import com.example.notes.repository.TopicRepository;
+import com.example.notes.repository.TopicRepositoryJPA;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ public class TopicService {
     public static final String TOPIC_NAME_IS_EMPTY_MESSAGE = "Topic name is empty";
     public static final String TOPIC_ID_IS_EMPTY_MESSAGE = "Topic id is empty";
 
-    private final TopicRepository topicRepository;
+    private final TopicRepositoryJPA topicRepository;
 
     public OperationResponse getTopicTree() {
         Set<TopicWrapper> rootList = new HashSet<>();
@@ -39,8 +39,7 @@ public class TopicService {
 
     private Set<TopicWrapper> getChildrenTopicWrapperList(Topic topic) {
         Set<TopicWrapper> childrenTopicList = new HashSet<>();
-        topicRepository.findListByParentId(topic.getId())
-                .forEach(child -> childrenTopicList.add(getTopicWrapper(child)));
+        topicRepository.findByParentTopic(topic).forEach(child -> childrenTopicList.add(getTopicWrapper(child)));
         return childrenTopicList;
     }
 
@@ -75,7 +74,7 @@ public class TopicService {
                         .orElseThrow(() -> new RuntimeException(
                                 String.format(PARENT_TOPIC_NOT_FOUND_MESSAGE, request.getParentTopicId())));
             }
-            newTopic = topicRepository.create(new Topic(null, request.getTopicName(), parentTopic));
+            newTopic = topicRepository.save(new Topic(null, request.getTopicName(), parentTopic));
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());
         }
@@ -92,10 +91,10 @@ public class TopicService {
                         .orElseThrow(() -> new RuntimeException(
                                 String.format(PARENT_TOPIC_NOT_FOUND_MESSAGE, request.getParentTopicId())));
             }
-            if (!topicRepository.update(UpdateTopicRequest2TopicMapper.INSTANCE
-                    .UpdateTopicRequest2Topic(request, newParentTopic))) {
+            topicRepository.save(UpdateTopicRequest2TopicMapper.INSTANCE.UpdateTopicRequest2Topic(request, newParentTopic));
+            /*if (!) {
                 throw new RuntimeException(String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId()));
-            }
+            }*/
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());
         }
@@ -106,9 +105,10 @@ public class TopicService {
     public OperationResponse deleteTopic(@NonNull final DeleteTopicRequest request) {
         try {
             checkDeleteTopicRequestParams(request);
-            if (!topicRepository.delete(request.getTopicId())) {
+            topicRepository.delete(topicRepository.findById(request.getTopicId()).orElse(null));
+            /*if (!topicRepository.delete(topicRepository.findById(request.getTopicId())) {
                 return OperationResponse.error(String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId()));
-            }
+            }*/
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());
         }

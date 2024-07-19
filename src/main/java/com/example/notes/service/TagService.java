@@ -7,14 +7,14 @@ import com.example.notes.mapper.Tag2CreateTagResponseMapper;
 import com.example.notes.mapper.Tag2TagWrapperMapper;
 import com.example.notes.mapper.UpdateTagRequest2TagMapper;
 import com.example.notes.model.Tag;
-import com.example.notes.repository.TagRepository;
+import com.example.notes.repository.TagRepositoryJPA;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -25,13 +25,13 @@ public class TagService {
     public static final String TAG_NAME_IS_EMPTY_MESSAGE = "Tag name is empty";
     public static final String TAG_ID_IS_EMPTY_MESSAGE = "Tag id is empty";
 
-    private final TagRepository tagRepository;
+    private final TagRepositoryJPA tagRepository;
 
     public OperationResponse createTag(@NonNull CreateTagRequest request) {
         Tag tag;
         try {
             checkCreateTagRequestParams(request);
-            tag = tagRepository.create(CreateTagRequest2TagMapper.INSTANCE.CreateTagRequest2Tag(request));
+            tag = tagRepository.save(CreateTagRequest2TagMapper.INSTANCE.CreateTagRequest2Tag(request));
         } catch (DataIntegrityViolationException e) {
             return OperationResponse.error(String.format(DUPLICATE_TAG_NAME_MESSAGE, request.getTagName()));
         } catch (Throwable t) {
@@ -63,7 +63,7 @@ public class TagService {
     }
 
     public GetTagListResponse getTagList() {
-        Set<Tag> allTags = tagRepository.findAll();
+        List<Tag> allTags = tagRepository.findAll();
         HashSet<TagWrapper> tagWrapperList = new HashSet<>();
         allTags.forEach(tag -> tagWrapperList.add(Tag2TagWrapperMapper.INSTANCE.tag2TagWrapper(tag)));
 
@@ -73,9 +73,10 @@ public class TagService {
     public OperationResponse updateTag(@NonNull UpdateTagRequest request) {
         try {
             checkUpdateTagRequestParams(request);
-            if (!tagRepository.update(UpdateTagRequest2TagMapper.INSTANCE.UpdateTagRequest2Tag(request))) {
+            tagRepository.save(UpdateTagRequest2TagMapper.INSTANCE.UpdateTagRequest2Tag(request));
+            /*if (!tagRepository.update() {
                 throw new RuntimeException(String.format(TAG_NOT_FOUND_BY_ID_MESSAGE, request.getTagId()));
-            }
+            }*/
         } catch (DataIntegrityViolationException e) {
             return OperationResponse.error(String.format(DUPLICATE_TAG_NAME_MESSAGE, request.getTagName()));
         } catch (Throwable t) {
@@ -88,9 +89,10 @@ public class TagService {
     public OperationResponse deleteTag(@NonNull DeleteTagRequest request) {
         try {
             checkDeleteTagRequestParams(request);
-            if (!tagRepository.delete(request.getTagId())) {
+            tagRepository.delete(tagRepository.findById(request.getTagId()).orElse(null));
+            /*if (!tagRepository.delete(request.getTagId())) {
                 return OperationResponse.error(String.format(TAG_NOT_FOUND_BY_ID_MESSAGE, request.getTagId()));
-            }
+            }*/
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());
         }
