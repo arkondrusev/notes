@@ -16,8 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.example.notes.service.TopicService.TOPIC_NOT_FOUND_MESSAGE;
 
@@ -36,11 +36,61 @@ public class NoteService {
     private final TopicRepository topicRepository;
     private final TagRepository tagRepository;
 
+    public OperationResponse createNote(@NonNull CreateNoteRequest request) {
+        Note newNote;
+        try {
+            checkCreateNoteRequestParams(request);
+
+            Set<Tag> tagList = getTagListByTagWrapperListAndCheck(request.getNoteTagList());
+
+            newNote = noteRepository.save(new Note(null, request.getNoteName(),
+                    findTopicOrThrow(request.getTopicId()), request.getNoteContent(), tagList));
+        } catch (Throwable t) {
+            return OperationResponse.error(t.getMessage());
+        }
+        return Note2CreateNoteResponseMapper.INSTANCE.note2CreateNoteResponse(newNote);
+    }
+
+    public OperationResponse updateNote(@NonNull UpdateNoteRequest request) {
+        try {
+            checkUpdateNoteRequestParams(request);
+
+            Set<Tag> tagList = getTagListByTagWrapperListAndCheck(request.getNoteTagList());
+
+            if (noteRepository.findById(request.getNoteId()).isEmpty()) {
+                throw new RuntimeException(String.format(NOTE_NOT_FOUND_MESSAGE, request.getNoteId()));
+            }
+
+            noteRepository.save(new Note(request.getNoteId(), request.getNoteName(),
+                    findTopicOrThrow(request.getTopicId()), request.getNoteContent(), tagList));
+        } catch (Throwable t) {
+            OperationResponse.error(t.getMessage());
+        }
+        return OperationResponse.ok();
+    }
+
+    public OperationResponse deleteNote(@NonNull DeleteNoteRequest request) {
+        try {
+            checkDeleteNoteRequestParams(request);
+
+            Optional<Note> noteOpt = noteRepository.findById(request.getNoteId());
+            if (noteOpt.isEmpty()) {
+                throw new RuntimeException(String.format(NOTE_NOT_FOUND_MESSAGE, request.getNoteId()));
+            }
+
+            noteRepository.delete(noteOpt.get());
+        } catch (Throwable t) {
+            return OperationResponse.error(t.getMessage());
+        }
+        return OperationResponse.ok();
+    }
+
     public GetNoteListResponse getNoteList() {
         Set<NoteWrapper> noteWrapperList = new HashSet<>();
         noteRepository.findAll().forEach(note ->
             noteWrapperList.add(Note2NoteWrapperMapper.INSTANCE.note2NoteWrapperMapper(note))
         );
+
         return new GetNoteListResponse(noteWrapperList);
     }
 
@@ -71,22 +121,14 @@ public class NoteService {
         }
     }
 
-    public OperationResponse createNote(@NonNull CreateNoteRequest request) {
-        Note newNote;
-        try {
-            checkCreateNoteRequestParams(request);
-            Set<Tag> tagList = new HashSet<>();
-            if (!request.getNoteTagList().isEmpty()) {
-                Set<Integer> requestTagIdList = getTagIdListByTagWrapperList(request.getNoteTagList());
-                tagList = tagRepository.findAllById(requestTagIdList).stream().collect(Collectors.toSet());
-                checkTagListFound(requestTagIdList, tagList);
-            }
-            newNote = noteRepository.save(new Note(null, request.getNoteName(),
-                    findTopicOrThrow(request.getTopicId()), request.getNoteContent(), tagList));
-        } catch (Throwable t) {
-            return OperationResponse.error(t.getMessage());
+    private Set<Tag> getTagListByTagWrapperListAndCheck(Set<TagWrapper> tagWrapperList) {
+        Set<Tag> tagList = new HashSet<>();
+        if (!tagWrapperList.isEmpty()) {
+            Set<Integer> requestTagIdList = getTagIdListByTagWrapperList(tagWrapperList);
+            tagList = new HashSet<>(tagRepository.findAllById(requestTagIdList));
+            checkTagListFound(requestTagIdList, tagList);
         }
-        return Note2CreateNoteResponseMapper.INSTANCE.note2CreateNoteResponse(newNote);
+        return tagList;
     }
 
     private void checkTagListFound(Set<Integer> tagIdList, Set<Tag> tagList) {
@@ -106,39 +148,6 @@ public class NoteService {
     private Topic findTopicOrThrow(Integer topicId) {
         return topicRepository.findById(topicId).orElseThrow(() -> new RuntimeException(
                         String.format(TOPIC_NOT_FOUND_MESSAGE, topicId)));
-    }
-
-    public OperationResponse updateNote(@NonNull UpdateNoteRequest request) {
-        try {
-            checkUpdateNoteRequestParams(request);
-            Set<Tag> tagList = new HashSet<>();
-            if (!request.getNoteTagList().isEmpty()) {
-                Set<Integer> requestTagIdList = getTagIdListByTagWrapperList(request.getNoteTagList());
-                tagList = tagRepository.findAllById(requestTagIdList).stream().collect(Collectors.toSet());
-                checkTagListFound(requestTagIdList, tagList);
-            }
-            noteRepository.save(new Note(request.getNoteId(), request.getNoteName(),
-                    findTopicOrThrow(request.getTopicId()), request.getNoteContent(), tagList));
-//            if (!) {
-//                throw new RuntimeException(String.format(NOTE_NOT_FOUND_MESSAGE, request.getNoteId()));
-//            }
-        } catch (Throwable t) {
-            OperationResponse.error(t.getMessage());
-        }
-        return OperationResponse.ok();
-    }
-
-    public OperationResponse deleteNote(@NonNull DeleteNoteRequest request) {
-        try {
-            checkDeleteNoteRequestParams(request);
-            noteRepository.delete(noteRepository.findById(request.getNoteId()).orElse(null));
-//            if (!) {
-//                throw new RuntimeException(String.format(NOTE_NOT_FOUND_MESSAGE, request.getNoteId()));
-//            }
-        } catch (Throwable t) {
-            return OperationResponse.error(t.getMessage());
-        }
-        return OperationResponse.ok();
     }
 
 }
