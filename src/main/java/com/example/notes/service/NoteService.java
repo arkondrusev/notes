@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.example.notes.service.TopicService.TOPIC_NOT_FOUND_MESSAGE;
 
@@ -37,9 +38,9 @@ public class NoteService {
 
     public GetNoteListResponse getNoteList() {
         Set<NoteWrapper> noteWrapperList = new HashSet<>();
-        noteRepository.findAll().forEach(note -> {
-            noteWrapperList.add(Note2NoteWrapperMapper.INSTANCE.note2NoteWrapperMapper(note));
-        });
+        noteRepository.findAll().forEach(note ->
+            noteWrapperList.add(Note2NoteWrapperMapper.INSTANCE.note2NoteWrapperMapper(note))
+        );
         return new GetNoteListResponse(noteWrapperList);
     }
 
@@ -77,12 +78,11 @@ public class NoteService {
             Set<Tag> tagList = new HashSet<>();
             if (!request.getNoteTagList().isEmpty()) {
                 Set<Integer> requestTagIdList = getTagIdListByTagWrapperList(request.getNoteTagList());
-                tagList = tagRepository.findListByIdList(requestTagIdList);
+                tagList = tagRepository.findAllById(requestTagIdList).stream().collect(Collectors.toSet());
                 checkTagListFound(requestTagIdList, tagList);
             }
-            newNote = new Note(null, request.getNoteName(), findTopicOrThrow(request.getTopicId()),
-                    request.getNoteContent(), tagList);
-            newNote = noteRepository.create(newNote);
+            newNote = noteRepository.save(new Note(null, request.getNoteName(),
+                    findTopicOrThrow(request.getTopicId()), request.getNoteContent(), tagList));
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());
         }
@@ -114,13 +114,14 @@ public class NoteService {
             Set<Tag> tagList = new HashSet<>();
             if (!request.getNoteTagList().isEmpty()) {
                 Set<Integer> requestTagIdList = getTagIdListByTagWrapperList(request.getNoteTagList());
-                tagList = tagRepository.findListByIdList(requestTagIdList);
+                tagList = tagRepository.findAllById(requestTagIdList).stream().collect(Collectors.toSet());
                 checkTagListFound(requestTagIdList, tagList);
             }
-            if (!noteRepository.update(new Note(request.getNoteId(), request.getNoteName(),
-                    findTopicOrThrow(request.getTopicId()), request.getNoteContent(), tagList))) {
-                throw new RuntimeException(String.format(NOTE_NOT_FOUND_MESSAGE, request.getNoteId()));
-            }
+            noteRepository.save(new Note(request.getNoteId(), request.getNoteName(),
+                    findTopicOrThrow(request.getTopicId()), request.getNoteContent(), tagList));
+//            if (!) {
+//                throw new RuntimeException(String.format(NOTE_NOT_FOUND_MESSAGE, request.getNoteId()));
+//            }
         } catch (Throwable t) {
             OperationResponse.error(t.getMessage());
         }
@@ -130,9 +131,10 @@ public class NoteService {
     public OperationResponse deleteNote(@NonNull DeleteNoteRequest request) {
         try {
             checkDeleteNoteRequestParams(request);
-            if (!noteRepository.delete(request.getNoteId())) {
-                throw new RuntimeException(String.format(NOTE_NOT_FOUND_MESSAGE, request.getNoteId()));
-            }
+            noteRepository.delete(noteRepository.findById(request.getNoteId()).orElse(null));
+//            if (!) {
+//                throw new RuntimeException(String.format(NOTE_NOT_FOUND_MESSAGE, request.getNoteId()));
+//            }
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());
         }

@@ -1,14 +1,13 @@
 package com.example.notes.config;
 
-import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
+import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.JpaVendorAdapter;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -40,21 +39,6 @@ public class PostgresqlConfig {
     }
 
     @Bean
-    public LocalSessionFactoryBean getLocalSessionFactoryBean() {
-        Properties hp = new Properties();
-        hp.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-        hp.setProperty("hibernate.show_sql", "true");
-        hp.setProperty("hibernate.hbm2ddl", "update");
-
-        LocalSessionFactoryBean lsfb = new LocalSessionFactoryBean();
-        lsfb.setDataSource(getDataSource());
-        lsfb.setHibernateProperties(hp);
-        lsfb.setPackagesToScan("com.example.notes.model");
-
-        return lsfb;
-    }
-
-    @Bean
     public DataSource getDataSource() {
         DriverManagerDataSource ds = new DriverManagerDataSource();
         ds.setDriverClassName(driver);
@@ -65,25 +49,39 @@ public class PostgresqlConfig {
     }
 
     @Bean
-    @Primary
-    public EntityManagerFactory entityManagerFactory() {
-        HibernateJpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
-        vendorAdapter.setGenerateDdl(true);
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory() {
+        LocalContainerEntityManagerFactoryBean em
+                = new LocalContainerEntityManagerFactoryBean();
+        em.setDataSource(getDataSource());
+        em.setPackagesToScan("com.example.notes.model");
 
-        LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
-        factory.setJpaVendorAdapter(vendorAdapter);
-        factory.setPackagesToScan("com.example.notes.model");
-        factory.setDataSource(getDataSource());
-        factory.afterPropertiesSet();
+        JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter();
+        em.setJpaVendorAdapter(vendorAdapter);
+        em.setJpaProperties(additionalProperties());
 
-        return factory.getObject();
+        return em;
     }
 
     @Bean
-    public PlatformTransactionManager getPlatformTransactionManager() {
-        HibernateTransactionManager htm = new HibernateTransactionManager();
-        htm.setSessionFactory(getLocalSessionFactoryBean().getObject());
-        return htm;
+    public PlatformTransactionManager transactionManager() {
+        JpaTransactionManager transactionManager = new JpaTransactionManager();
+        transactionManager.setEntityManagerFactory(entityManagerFactory().getObject());
+
+        return transactionManager;
+    }
+
+    @Bean
+    public PersistenceExceptionTranslationPostProcessor exceptionTranslation(){
+        return new PersistenceExceptionTranslationPostProcessor();
+    }
+
+    Properties additionalProperties() {
+        Properties properties = new Properties();
+        properties.setProperty("hibernate.hbm2ddl", "update");
+        properties.setProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
+        properties.setProperty("hibernate.show_sql", "true");
+
+        return properties;
     }
 
 }

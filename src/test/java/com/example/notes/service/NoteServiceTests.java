@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
@@ -59,7 +58,7 @@ public class NoteServiceTests {
         Set<Note> noteList = new HashSet<>();
         noteList.add(new Note(1, expectedNoteName1, topic1));
         noteList.add(new Note(2, expectedNoteName2, topic2));
-        when(noteRepository.findAll()).thenReturn(noteList);
+//        when(noteRepository.findAll()).thenReturn(noteList);
 
         GetNoteListResponse actualResponse = noteService.getNoteList();
 
@@ -78,10 +77,10 @@ public class NoteServiceTests {
                 topic1, "Test Note Content 1", tagList);
         CreateNoteRequest request = new CreateNoteRequest(note1.getName(),
                 note1.getTopic().getId(), note1.getContent(), tagWrapperList);
-        when(tagRepository.findListByIdList(any())).thenReturn(tagList);
+//        when(tagRepository.findListByIdList(any())).thenReturn(tagList);
         when(topicRepository.findById(topic1.getId())).thenReturn(Optional.of(topic1));
-        when(noteRepository.create(new Note(null, "Test Topic 1",
-                topic1, "Test Note Content 1", tagList))).thenReturn(note1);
+//        when(noteRepository.create(new Note(null, "Test Topic 1",
+//                topic1, "Test Note Content 1", tagList))).thenReturn(note1);
 
         assertEquals(new CreateNoteResponse(note1.getId(), note1.getName()), noteService.createNote(request));
     }
@@ -98,9 +97,9 @@ public class NoteServiceTests {
                 topic1, "Test Note Content 1", tagList);
         UpdateNoteRequest request = new UpdateNoteRequest(note1.getId(), note1.getName(),
                 note1.getTopic().getId(), note1.getContent(), tagWrapperList);
-        when(tagRepository.findListByIdList(any())).thenReturn(tagList);
+//        when(tagRepository.findListByIdList(any())).thenReturn(tagList);
         when(topicRepository.findById(topic1.getId())).thenReturn(Optional.of(topic1));
-        when(noteRepository.update(note1)).thenReturn(Boolean.TRUE);
+//        when(noteRepository.update(note1)).thenReturn(Boolean.TRUE);
 
         assertEquals(OperationResponse.ok(), noteService.updateNote(request));
     }
@@ -108,7 +107,7 @@ public class NoteServiceTests {
     @Test
     void deleteNote_success() {
         Integer noteId = 1;
-        when(noteRepository.delete(noteId)).thenReturn(Boolean.TRUE);
+//        when(noteRepository.delete(noteId)).thenReturn(Boolean.TRUE);
 
         assertEquals(OperationResponse.ok(), noteService.deleteNote(new DeleteNoteRequest(noteId)));
     }

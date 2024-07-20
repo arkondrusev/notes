@@ -6,7 +6,7 @@ import com.example.notes.mapper.Topic2CreateTopicResponseMapper;
 import com.example.notes.mapper.Topic2TopicWrapperMapper;
 import com.example.notes.mapper.UpdateTopicRequest2TopicMapper;
 import com.example.notes.model.Topic;
-import com.example.notes.repository.TopicRepositoryJPA;
+import com.example.notes.repository.TopicRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ public class TopicService {
     public static final String TOPIC_NAME_IS_EMPTY_MESSAGE = "Topic name is empty";
     public static final String TOPIC_ID_IS_EMPTY_MESSAGE = "Topic id is empty";
 
-    private final TopicRepositoryJPA topicRepository;
+    private final TopicRepository topicRepository;
 
     public OperationResponse getTopicTree() {
         Set<TopicWrapper> rootList = new HashSet<>();

@@ -7,7 +7,7 @@ import com.example.notes.mapper.Tag2CreateTagResponseMapper;
 import com.example.notes.mapper.Tag2TagWrapperMapper;
 import com.example.notes.mapper.UpdateTagRequest2TagMapper;
 import com.example.notes.model.Tag;
-import com.example.notes.repository.TagRepositoryJPA;
+import com.example.notes.repository.TagRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -25,7 +25,7 @@ public class TagService {
     public static final String TAG_NAME_IS_EMPTY_MESSAGE = "Tag name is empty";
     public static final String TAG_ID_IS_EMPTY_MESSAGE = "Tag id is empty";
 
-    private final TagRepositoryJPA tagRepository;
+    private final TagRepository tagRepository;
 
     public OperationResponse createTag(@NonNull CreateTagRequest request) {
         Tag tag;

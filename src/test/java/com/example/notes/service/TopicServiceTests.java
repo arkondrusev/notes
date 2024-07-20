@@ -16,8 +16,6 @@ import java.util.Set;
 
 import static com.example.notes.service.TopicService.TOPIC_NOT_FOUND_MESSAGE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
@@ -37,7 +35,7 @@ public class TopicServiceTests {
     void createTopic_success() {
         CreateTopicRequest request = new CreateTopicRequest(expectedTopicName1, null);
         CreateTopicResponse expectedResponse = new CreateTopicResponse(1, expectedTopicName1, null);
-        when(topicRepository.create(any())).thenReturn(new Topic(1, expectedTopicName1, null));
+//        when(topicRepository.create(any())).thenReturn(new Topic(1, expectedTopicName1, null));
 
         assertEquals(expectedResponse, topicService.createTopic(request));
     }
@@ -45,7 +43,7 @@ public class TopicServiceTests {
     @Test
     void createTopic_fail__exceptionOnDB() {
         CreateTopicRequest request = new CreateTopicRequest(expectedTopicName1, null);
-        when(topicRepository.create(any())).thenThrow(new RuntimeException("Test DB error"));
+//        when(topicRepository.create(any())).thenThrow(new RuntimeException("Test DB error"));
 
         assertEquals(OperationResponse.error("Test DB error"), topicService.createTopic(request));
     }
@@ -57,7 +55,7 @@ public class TopicServiceTests {
         expectedWrapperList.add(topicWrapper1);
         Set<Topic> dbTopicList = new HashSet<>();
         dbTopicList.add(new Topic(1, expectedTopicName1, null));
-        when(topicRepository.findAll()).thenReturn(dbTopicList);
+//        when(topicRepository.findAll()).thenReturn(dbTopicList);
 
         assertEquals(new GetTopicTreeResponse(expectedWrapperList), topicService.getTopicTree());
     }
@@ -66,7 +64,7 @@ public class TopicServiceTests {
     void updateTopic_success() {
         Topic topic = new Topic(1, expectedTopicName1, null);
         UpdateTopicRequest request = new UpdateTopicRequest(1, expectedTopicName1, null);
-        when(topicRepository.update(topic)).thenReturn(Boolean.TRUE);
+//        when(topicRepository.update(topic)).thenReturn(Boolean.TRUE);
 
         assertEquals(OperationResponse.ok(), topicService.updateTopic(request));
     }
@@ -76,7 +74,7 @@ public class TopicServiceTests {
         Integer topicId = 1;
         UpdateTopicRequest request = new UpdateTopicRequest(topicId, expectedTopicName1, null);
         OperationResponse expectedResponse = OperationResponse.error(String.format(TOPIC_NOT_FOUND_MESSAGE, topicId));
-        when(topicRepository.update(new Topic(topicId, expectedTopicName1, null))).thenReturn(Boolean.FALSE);
+//        when(topicRepository.update(new Topic(topicId, expectedTopicName1, null))).thenReturn(Boolean.FALSE);
 
         assertEquals(expectedResponse, topicService.updateTopic(request));
     }
@@ -84,7 +82,7 @@ public class TopicServiceTests {
     @Test
     void deleteTopic_success() {
         DeleteTopicRequest request = new DeleteTopicRequest(1);
-        when(topicRepository.delete(request.getTopicId())).thenReturn(true);
+//        when(topicRepository.delete(request.getTopicId())).thenReturn(true);
 
         assertEquals(OperationResponse.ok(), topicService.deleteTopic(request));
     }
@@ -92,7 +90,7 @@ public class TopicServiceTests {
     @Test
     void deleteTopic_fail__topicNotFoundException() {
         DeleteTopicRequest request = new DeleteTopicRequest(1);
-        when(topicRepository.delete(request.getTopicId())).thenReturn(false);
+//        when(topicRepository.delete(request.getTopicId())).thenReturn(false);
 
         assertEquals(OperationResponse.error(String.format(TOPIC_NOT_FOUND_MESSAGE, request.getTopicId())),
                 topicService.deleteTopic(request));
