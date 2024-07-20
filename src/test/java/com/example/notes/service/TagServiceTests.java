@@ -9,15 +9,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
+import java.util.Optional;
 
 import static com.example.notes.service.TagService.DUPLICATE_TAG_NAME_MESSAGE;
 import static com.example.notes.service.TagService.TAG_NOT_FOUND_BY_ID_MESSAGE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {
@@ -34,35 +38,35 @@ public class TagServiceTests {
     @MockBean
     private TagRepository tagRepository;
 
-    //@Test
+    @Test
     void createTag_success() {
         CreateTagRequest request = new CreateTagRequest(expectedTagName1);
         OperationResponse expectedResponse = new CreateTagResponse(1, expectedTagName1);
         Tag tagForSave = new Tag(null, expectedTagName1);
         Tag tagSaved = new Tag(1, expectedTagName1);
-//        when(tagRepository.create(tagForSave)).thenReturn(tagSaved);
+        when(tagRepository.save(tagForSave)).thenReturn(tagSaved);
 
         assertEquals(expectedResponse, tagService.createTag(request));
     }
 
-    //@Test
+    @Test
     void createTag_fail_duplicateTagException() {
         CreateTagRequest request = new CreateTagRequest(expectedTagName1);
         OperationResponse expectedResponse = OperationResponse.error(String.format(DUPLICATE_TAG_NAME_MESSAGE, expectedTagName1));
         Tag tagForSave = new Tag(null, expectedTagName1);
-//        when(tagRepository.create(tagForSave)).thenThrow(DataIntegrityViolationException.class);
+        when(tagRepository.save(tagForSave)).thenThrow(new DataIntegrityViolationException("duplicate key"));
 
         assertEquals(expectedResponse, tagService.createTag(request));
     }
 
     @Test
     void getTagList_success() {
-        Set<Tag> tagList = new HashSet<>();
+        List<Tag> tagList = new ArrayList<>();
         tagList.add(new Tag(1, expectedTagName1));
         tagList.add(new Tag(2, expectedTagName2));
         GetTagListResponse expectedResponse = new GetTagListResponse(Tag2TagWrapperMapper
-                .INSTANCE.tag2TagWrapperList(tagList));
-//        when(tagRepository.findAll()).thenReturn(tagList);
+                .INSTANCE.tag2TagWrapperList(new HashSet<>(tagList)));
+        when(tagRepository.findAll()).thenReturn(tagList);
 
         assertEquals(expectedResponse, tagService.getTagList());
     }
@@ -71,7 +75,8 @@ public class TagServiceTests {
     void updateTag_success() {
         Tag tag = new Tag(1, expectedTagName1);
         UpdateTagRequest request = new UpdateTagRequest(1, expectedTagName1);
-//        when(tagRepository.update(tag)).thenReturn(Boolean.TRUE);
+        when(tagRepository.findById(tag.getId())).thenReturn(Optional.of(tag));
+        when(tagRepository.save(tag)).thenReturn(tag);
 
         assertEquals(OperationResponse.ok(), tagService.updateTag(request));
     }
@@ -81,7 +86,9 @@ public class TagServiceTests {
         Tag tag = new Tag(1, expectedTagName1);
         UpdateTagRequest request = new UpdateTagRequest(1, expectedTagName1);
         OperationResponse expectedResponse = OperationResponse.error(String.format(DUPLICATE_TAG_NAME_MESSAGE, expectedTagName1));
-//        when(tagRepository.update(tag)).thenThrow(DataIntegrityViolationException.class);
+        when(tagRepository.findById(tag.getId())).thenReturn(Optional.of(tag));
+        when(tagRepository.save(tag)).thenThrow(new DataIntegrityViolationException("duplicate key"));
+
 
         assertEquals(expectedResponse, tagService.updateTag(request));
     }
@@ -91,7 +98,7 @@ public class TagServiceTests {
         Integer tagId = 1;
         UpdateTagRequest request = new UpdateTagRequest(tagId, expectedTagName1);
         OperationResponse expectedResponse = OperationResponse.error(String.format(TAG_NOT_FOUND_BY_ID_MESSAGE, tagId));
-//        when(tagRepository.update(new Tag(tagId, expectedTagName1))).thenReturn(Boolean.FALSE);
+        when(tagRepository.findById(tagId)).thenReturn(Optional.empty());
 
         assertEquals(expectedResponse, tagService.updateTag(request));
     }
@@ -100,7 +107,7 @@ public class TagServiceTests {
     void deleteTag_success() {
         Tag tag = new Tag(1, expectedTagName1);
         DeleteTagRequest request = new DeleteTagRequest(tag.getId());
-//        when(tagRepository.delete(tag.getId())).thenReturn(Boolean.TRUE);
+        when(tagRepository.findById(tag.getId())).thenReturn(Optional.of(tag));
 
         assertEquals(OperationResponse.ok(), tagService.deleteTag(request));
     }
@@ -110,7 +117,7 @@ public class TagServiceTests {
         Integer tagId = 1;
         DeleteTagRequest request = new DeleteTagRequest(tagId);
         OperationResponse expectedResponse = OperationResponse.error(String.format(TAG_NOT_FOUND_BY_ID_MESSAGE, tagId));
-//        when(tagRepository.delete(tagId)).thenReturn(Boolean.FALSE);
+        when(tagRepository.findById(tagId)).thenReturn(Optional.empty());
 
         assertEquals(expectedResponse, tagService.deleteTag(request));
     }
