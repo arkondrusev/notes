@@ -1,3 +1,6 @@
+--liquibase formatted sql
+
+-- changeset akonrusev:1
 CREATE SEQUENCE IF NOT EXISTS public.tag_id_seq
     INCREMENT 1
     START 1
@@ -8,7 +11,7 @@ CREATE SEQUENCE IF NOT EXISTS public.tag_id_seq
 
 ALTER SEQUENCE public.tag_id_seq
     OWNER TO postgres;
-    
+
 CREATE SEQUENCE IF NOT EXISTS public.topic_id_seq
     INCREMENT 1
     START 1
@@ -19,7 +22,7 @@ CREATE SEQUENCE IF NOT EXISTS public.topic_id_seq
 
 ALTER SEQUENCE public.topic_id_seq
     OWNER TO postgres;
-    
+
 CREATE SEQUENCE IF NOT EXISTS public.note_id_seq
     INCREMENT 1
     START 1
@@ -30,7 +33,7 @@ CREATE SEQUENCE IF NOT EXISTS public.note_id_seq
 
 ALTER SEQUENCE public.note_id_seq
     OWNER TO postgres;
-    
+
 CREATE TABLE IF NOT EXISTS public.tag
 (
     id integer NOT NULL DEFAULT nextval('tag_id_seq'::regclass),
@@ -39,11 +42,11 @@ CREATE TABLE IF NOT EXISTS public.tag
     CONSTRAINT tag_name_uk UNIQUE (name)
 )
 
-TABLESPACE pg_default;
+    TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.tag
     OWNER to postgres;
-    
+
 CREATE TABLE IF NOT EXISTS public.topic
 (
     id integer NOT NULL DEFAULT nextval('topic_id_seq'::regclass),
@@ -52,11 +55,11 @@ CREATE TABLE IF NOT EXISTS public.topic
     CONSTRAINT topic_pkey PRIMARY KEY (id)
 )
 
-TABLESPACE pg_default;
+    TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.topic
     OWNER to postgres;
-    
+
 CREATE TABLE IF NOT EXISTS public.note
 (
     id integer NOT NULL DEFAULT nextval('note_id_seq'::regclass),
@@ -66,11 +69,11 @@ CREATE TABLE IF NOT EXISTS public.note
     CONSTRAINT note_pkey PRIMARY KEY (id)
 )
 
-TABLESPACE pg_default;
+    TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.note
     OWNER to postgres;
-    
+
 CREATE TABLE IF NOT EXISTS public.note_to_tag
 (
     note_id integer NOT NULL,
@@ -78,7 +81,7 @@ CREATE TABLE IF NOT EXISTS public.note_to_tag
     CONSTRAINT note_to_tag_pk PRIMARY KEY (note_id, tag_id)
 )
 
-TABLESPACE pg_default;
+    TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.note_to_tag
     OWNER to postgres;
