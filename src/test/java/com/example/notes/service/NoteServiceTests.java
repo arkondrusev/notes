@@ -16,9 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -56,7 +54,7 @@ public class NoteServiceTests {
         noteWrapperList.add(new NoteWrapper(2, expectedNoteName2, topic2.getId()
                 , topic2.getName(), "", new HashSet<>()));
         GetNoteListResponse expectedResponse = new GetNoteListResponse(noteWrapperList);
-        Set<Note> noteList = new HashSet<>();
+        List<Note> noteList = new ArrayList<>();
         noteList.add(new Note(1, expectedNoteName1, topic1));
         noteList.add(new Note(2, expectedNoteName2, topic2));
         when(noteRepository.findAll()).thenReturn(noteList);
@@ -69,19 +67,20 @@ public class NoteServiceTests {
     @Test
     void createNote_success() {
         Integer noteId = 1;
-        Set<Tag> tagList = new HashSet<>();
+        List<Tag> tagList = new ArrayList<>();
         tagList.add(new Tag(1, "Test Tag 1"));
         Set<TagWrapper> tagWrapperList = new HashSet<>();
         tagWrapperList.add(new TagWrapper(1, "Test Tag 1"));
         Topic topic1 = new Topic(1, "Test Topic 1");
+        Set<Tag> tagListSet = new HashSet<>(tagList);
         Note note1 = new Note(noteId, "Test Topic 1",
-                topic1, "Test Note Content 1", tagList);
+                topic1, "Test Note Content 1", tagListSet);
         CreateNoteRequest request = new CreateNoteRequest(note1.getName(),
                 note1.getTopic().getId(), note1.getContent(), tagWrapperList);
-        when(tagRepository.findListByIdList(any())).thenReturn(tagList);
+        when(tagRepository.findAllById(any())).thenReturn(tagList);
         when(topicRepository.findById(topic1.getId())).thenReturn(Optional.of(topic1));
-        when(noteRepository.create(new Note(null, "Test Topic 1",
-                topic1, "Test Note Content 1", tagList))).thenReturn(note1);
+        when(noteRepository.save(new Note(null, "Test Topic 1",
+                topic1, "Test Note Content 1", tagListSet))).thenReturn(note1);
 
         assertEquals(new CreateNoteResponse(note1.getId(), note1.getName()), noteService.createNote(request));
     }
@@ -89,18 +88,18 @@ public class NoteServiceTests {
     @Test
     void updateNote_success() {
         Integer noteId = 1;
-        Set<Tag> tagList = new HashSet<>();
+        List<Tag> tagList = new ArrayList<>();
         tagList.add(new Tag(1, "Test Tag 1"));
         Set<TagWrapper> tagWrapperList = new HashSet<>();
         tagWrapperList.add(new TagWrapper(1, "Test Tag 1"));
         Topic topic1 = new Topic(1, "Test Topic 1");
         Note note1 = new Note(noteId, "Test Topic 1",
-                topic1, "Test Note Content 1", tagList);
+                topic1, "Test Note Content 1", new HashSet<>(tagList));
         UpdateNoteRequest request = new UpdateNoteRequest(note1.getId(), note1.getName(),
                 note1.getTopic().getId(), note1.getContent(), tagWrapperList);
-        when(tagRepository.findListByIdList(any())).thenReturn(tagList);
+        when(tagRepository.findAllById(any())).thenReturn(tagList);
         when(topicRepository.findById(topic1.getId())).thenReturn(Optional.of(topic1));
-        when(noteRepository.update(note1)).thenReturn(Boolean.TRUE);
+        when(noteRepository.save(note1)).thenReturn(note1);
 
         assertEquals(OperationResponse.ok(), noteService.updateNote(request));
     }
@@ -108,7 +107,8 @@ public class NoteServiceTests {
     @Test
     void deleteNote_success() {
         Integer noteId = 1;
-        when(noteRepository.delete(noteId)).thenReturn(Boolean.TRUE);
+        Topic topic1 = new Topic(1, "Test Topic 1");
+        when(noteRepository.findById(noteId)).thenReturn(Optional.of(new Note(noteId, "Note 1", topic1)));
 
         assertEquals(OperationResponse.ok(), noteService.deleteNote(new DeleteNoteRequest(noteId)));
     }
