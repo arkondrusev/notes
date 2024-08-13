@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(exclude = {"parentTopic"})
+@Builder(setterPrefix = "set")
 public class Topic {
 
     @Id
