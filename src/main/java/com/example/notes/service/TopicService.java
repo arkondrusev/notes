@@ -15,6 +15,9 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.example.notes.dto.OperationResponse.RESULT_CODE__OK;
+import static com.example.notes.dto.OperationResponse.RESULT_MESSAGE__OK;
+
 @Service
 @RequiredArgsConstructor
 public class TopicService {
@@ -37,7 +40,10 @@ public class TopicService {
             return OperationResponse.error(t.getMessage());
         }
 
-        return Topic2CreateTopicResponseMapper.INSTANCE.topic2CreateTopicResponse(newTopic);
+        CreateTopicResponse response = Topic2CreateTopicResponseMapper.INSTANCE.topic2CreateTopicResponse(newTopic);
+        response.setResultCode(RESULT_CODE__OK);
+        response.setResultMessage(RESULT_MESSAGE__OK);
+        return response;
     }
 
     public OperationResponse updateTopic(@NonNull final UpdateTopicRequest request) {

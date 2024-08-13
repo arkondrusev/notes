@@ -1,11 +1,13 @@
 package com.example.notes.dto;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@SuperBuilder(setterPrefix = "set")
 public class OperationResponse {
 
     public static final Integer RESULT_CODE__OK = 0;
@@ -13,9 +15,7 @@ public class OperationResponse {
 
     public static final String RESULT_MESSAGE__OK = "OK";
 
-    @NonNull
     private Integer resultCode;
-    @NonNull
     private String resultMessage;
 
     public static OperationResponse ok() {

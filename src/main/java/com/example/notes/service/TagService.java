@@ -17,6 +17,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
+import static com.example.notes.dto.OperationResponse.RESULT_CODE__OK;
+import static com.example.notes.dto.OperationResponse.RESULT_MESSAGE__OK;
+
 @Service
 @RequiredArgsConstructor
 public class TagService {
@@ -43,7 +46,10 @@ public class TagService {
             return OperationResponse.error(t.getMessage());
         }
 
-        return Tag2CreateTagResponseMapper.INSTANCE.tag2CreateTagResponse(tag);
+        CreateTagResponse createTagResponse = Tag2CreateTagResponseMapper.INSTANCE.tag2CreateTagResponse(tag);
+        createTagResponse.setResultCode(RESULT_CODE__OK);
+        createTagResponse.setResultMessage(RESULT_MESSAGE__OK);
+        return createTagResponse;
     }
 
     public OperationResponse updateTag(@NonNull UpdateTagRequest request) {
