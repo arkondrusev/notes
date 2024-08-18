@@ -3,12 +3,14 @@ package com.example.notes.dto.topic;
 import com.example.notes.dto.OperationResponse;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
 @EqualsAndHashCode(callSuper=true)
+@SuperBuilder(setterPrefix = "set")
 public class GetTopicTreeResponse extends OperationResponse {
 
     private Set<TopicWrapper> topicList;
