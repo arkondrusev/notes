@@ -4,9 +4,11 @@ import com.example.notes.dto.OperationResponse;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
+import lombok.experimental.SuperBuilder;
 
 @Data
 @EqualsAndHashCode(callSuper=true)
+@SuperBuilder(setterPrefix = "set")
 public class CreateNoteResponse extends OperationResponse {
 
     @NonNull

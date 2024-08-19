@@ -13,6 +13,7 @@ import java.util.Set;
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @ToString(exclude = {"topic"})
+@Builder(setterPrefix = "set")
 public class Note {
 
     @Id

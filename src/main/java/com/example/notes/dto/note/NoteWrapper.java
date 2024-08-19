@@ -9,6 +9,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder(setterPrefix = "set")
 public class NoteWrapper {
 
     @NonNull

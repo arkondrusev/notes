@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.example.notes.dto.OperationResponse.RESULT_CODE__OK;
+import static com.example.notes.dto.OperationResponse.RESULT_MESSAGE__OK;
 import static com.example.notes.service.TopicService.TOPIC_NOT_FOUND_MESSAGE;
 
 @Service
@@ -48,7 +50,11 @@ public class NoteService {
         } catch (Throwable t) {
             return OperationResponse.error(t.getMessage());
         }
-        return Note2CreateNoteResponseMapper.INSTANCE.note2CreateNoteResponse(newNote);
+        CreateNoteResponse response = Note2CreateNoteResponseMapper.INSTANCE.note2CreateNoteResponse(newNote);
+        response.setResultCode(RESULT_CODE__OK);
+        response.setResultMessage(RESULT_MESSAGE__OK);
+
+        return response;
     }
 
     public OperationResponse updateNote(@NonNull UpdateNoteRequest request) {

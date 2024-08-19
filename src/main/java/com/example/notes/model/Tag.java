@@ -11,6 +11,7 @@ import lombok.*;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Builder(setterPrefix = "set")
 public class Tag {
 
     @Id

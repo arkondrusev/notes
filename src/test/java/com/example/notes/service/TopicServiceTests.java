@@ -34,7 +34,7 @@ public class TopicServiceTests {
 
     @Test
     void createTopic_success() {
-        CreateTopicRequest request = new CreateTopicRequest(expectedTopicName1, null);
+        CreateTopicRequest request = CreateTopicRequest.builder().setTopicName(expectedTopicName1).build();
         CreateTopicResponse expectedResponse = new CreateTopicResponse(1, expectedTopicName1, null);
         Topic topicForSave = new Topic(null, expectedTopicName1, null);
         Topic topicSaved = new Topic(1, expectedTopicName1, null);
@@ -45,7 +45,7 @@ public class TopicServiceTests {
 
     @Test
     void createTopic_fail__exceptionOnDB() {
-        CreateTopicRequest request = new CreateTopicRequest(expectedTopicName1, null);
+        CreateTopicRequest request = CreateTopicRequest.builder().setTopicName(expectedTopicName1).build();
         when(topicRepository.save(any())).thenThrow(new RuntimeException("Test DB error"));
 
         assertEquals(OperationResponse.error("Test DB error"), topicService.createTopic(request));

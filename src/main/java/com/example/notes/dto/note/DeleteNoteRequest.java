@@ -1,12 +1,13 @@
 package com.example.notes.dto.note;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 @Data
-@RequiredArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder(setterPrefix = "set")
 public class DeleteNoteRequest {
 
-    private final Integer noteId;
+    private Integer noteId;
 
 }
